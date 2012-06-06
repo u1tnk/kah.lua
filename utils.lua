@@ -1,8 +1,17 @@
 --[[
--- 基本はTir(https://github.com/zedshaw/Tir)のutil.luaを流用
+-- 
+-- Tir(https://github.com/zedshaw/Tir)のutil.lua
 -- License: http://tir.mongrel2.org/wiki/license.html
 -- BSD License
+--
+-- Underscore.lua(https://github.com/mirven/underscore.lua)
+-- MIT License
+--
+-- 等から引用、付加している
 -- 改変、付加している
+--
+-- Example.
+-- _ = require 'utils.lua'
 ]]--
 
 module(..., package.seeall)
@@ -29,7 +38,7 @@ function tablePrint(tt, indent, done)
         table.insert(sb, string.format("\"%s\" ", tostring(value)))
       else
         table.insert(sb, string.format(
-            "%s = \"%s\"\n", tostring(key), tostring(value)))
+            "s = \"%s\"\n", tostring(key), tostring(value)))
        end
     end
     return table.concat(sb)
@@ -56,12 +65,20 @@ end
 p = dump
 
 -- Helper function that loads a file into ram.
-function loadFile(from_dir, name)
-  local intmp = assert(io.open(from_dir .. name, 'r'))
+function loadFile(path)
+  local intmp = io.open(path, 'r')
+  if not intmp then
+    return nil
+  end
   local content = intmp:read('*a')
   intmp:close()
 
   return content
+end
+function writeFile(path, str)
+  local out = io.open(path, "w")
+  out:write(str)
+  out:close()
 end
 
 function update(target, source, keys)
@@ -210,6 +227,7 @@ local result = clone(default)
   end
   return result
 end
+extend = setDefault
 
 function size(table)
   local i = 0
@@ -238,7 +256,6 @@ function equal(o1, o2)
       return false
     end
 
-    -- TODO 配列データ混ざるとダメ
     for key, value in pairs(o1) do
       if type(value) == "table" then
         if not equal(value, o2[key]) then
@@ -256,22 +273,6 @@ function equal(o1, o2)
   end
   return true
 end
-
--- experimental
-function serial(fns, callback)
-  local i = 1
-  local next
-  next = function()
-    i = i + 1
-    local f = fns[i]
-    if f then
-      f(next)
-    elseif callback then
-      callback()
-    end
-  end
-  fns[1](next)
-end  
 
 function checkPercent(percent)
   return math.random(1, 100) <= percent
@@ -301,7 +302,7 @@ function unshift(array, item)
 	return array
 end
 
---ここまで
+-- ここまで
 
 function sum(array)
   local result
@@ -315,7 +316,7 @@ function sum(array)
   return result
 end
 
-extract = function(array, key)
+function extract(array, key)
   local result = {}
   for i, v in ipairs(array) do
    table.insert(result, v[key]) 
