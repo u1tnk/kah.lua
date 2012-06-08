@@ -14,10 +14,8 @@
 -- _ = require 'utils.lua'
 ]]--
 
-module(..., package.seeall)
-require 'json'
-
-function tablePrint(tt, indent, done)
+local M = {}
+function M.tablePrint(tt, indent, done)
   local done = done or {}
   local indent = indent or 0
   local space = string.rep(" ", indent)
@@ -31,7 +29,7 @@ function tablePrint(tt, indent, done)
       if type (value) == "table" and not done [value] then
         done [value] = true
         table.insert(sb, key .. " = {\n");
-        table.insert(sb, tablePrint(value, indent + 2, done))
+        table.insert(sb, M.tablePrint(value, indent + 2, done))
         table.insert(sb, space) -- indent it
         table.insert(sb, "}\n");
       elseif "number" == type(key) then
@@ -47,11 +45,11 @@ function tablePrint(tt, indent, done)
   end
 end
 
-function toString(data)
+function M.toString(data)
   if "nil" == type(data) then
     return tostring(nil)
   elseif "table" == type(data) then
-    return tablePrint(data)
+    return M.tablePrint(data)
   elseif  "string" == type(data) then
     return data
   else
@@ -59,13 +57,13 @@ function toString(data)
   end
 end
 
-function dump(data, name)
-    print(toString({name or "*", data}))
+function M.dump(data, name)
+    print(M.toString({name or "*", data}))
 end
-p = dump
+M.p = M.dump
 
 -- Helper function that loads a file into ram.
-function loadFile(path)
+function M.loadFile(path)
   local intmp = io.open(path, 'r')
   if not intmp then
     return nil
@@ -75,13 +73,14 @@ function loadFile(path)
 
   return content
 end
-function writeFile(path, str)
+
+function M.writeFile(path, str)
   local out = io.open(path, "w")
   out:write(str)
   out:close()
 end
 
-function update(target, source, keys)
+function M.update(target, source, keys)
   if keys then 
     for _, key in ipairs(keys) do
       target[key] = source[key]
@@ -93,11 +92,10 @@ function update(target, source, keys)
   end
 end
 
-
 -- useful for tables and params and stuff
-function clone(source, keys)
+function M.clone(source, keys)
   local target = {}
-  update(target, source, keys)
+  M.update(target, source, keys)
   return target
 end
 
@@ -105,22 +103,23 @@ copy = clone
 
 
 -- Simplistic HTML escaping.
-function htmlEscape(s)
+function M.htmlEscape(s)
   if s == nil then return '' end
 
   local esc, i = s:gsub('&', '&amp;'):gsub('<', '&lt;'):gsub('>', '&gt;')
   return esc
 end
 
+
 -- Simplistic URL decoding that can handle + space encoding too.
-function urlDecode(data)
+function M.urlDecode(data)
   return data:gsub("%+", ' '):gsub('%%(%x%x)', function (s)
     return string.char(tonumber(s, 16))
   end)
 end
 
 -- Simplistic URL encoding
-function urlEncode(data)
+function M.urlEncode(data)
   return data:gsub("\n","\r\n"):gsub("([^%w%-%-%.])", 
     function (c) return ("%%%02X"):format(string.byte(c)) 
   end)
@@ -128,7 +127,7 @@ end
 
 -- Basic URL parsing that handles simple key=value&key=value setups
 -- and decodes both key and value.
-function urlParse(data, sep)
+function M.urlParse(data, sep)
   local result = {}
   sep = sep or '&'
   data = data .. sep
@@ -149,7 +148,7 @@ end
 
 -- Loads a source file, but converts it with line numbering only showing
 -- from firstline to lastline.
-function loadLines(source, firstline, lastline)
+function M.loadLines(source, firstline, lastline)
   local f = io.open(source)
   local lines = {}
   local i = 0
@@ -166,11 +165,11 @@ function loadLines(source, firstline, lastline)
   return table.concat(lines,'\n')
 end
 
-sample = function(array)
+function M.sample(array)
   return array[math.random(1, #array)]
 end
 
-shuffle = function(array)
+function M.shuffle(array)
   math.randomseed(os.time())
   local result = utils.clone(array)
   local length = #array
@@ -184,18 +183,18 @@ shuffle = function(array)
 end
 
 
-randomPosition = function(x, y, width, height)
+function M.randomPosition(x, y, width, height)
   newX = x + math.random(-width, width)
   newY = y + math.random(-height, height)
   return newX, newY
 end
 
-calculateAlignLeft = function(group, obj)
+function calculateAlignLeft(group, obj)
   return (-1 * group.width / 2) + (obj.width / 2)
 end
 
 -- crawlspaceLibから
-color = function(h, format)
+function M.color(h, format)
   assert(h, "require color")
   local r,g,b,a
   local hex = string.lower(string.gsub(h,"#",""))
@@ -217,8 +216,8 @@ color = function(h, format)
   end
 end
 
-setDefault = function(params, default)
-local result = clone(default)
+function M.setDefault(params, default)
+local result = M.clone(default)
   if not params then
     return result
   end
@@ -229,7 +228,7 @@ local result = clone(default)
 end
 extend = setDefault
 
-function size(table)
+function M.size(table)
   local i = 0
   for k, v in pairs(table) do
     i = i + 1
@@ -237,7 +236,7 @@ function size(table)
   return i
 end
 
-function equal(o1, o2)
+function M.equal(o1, o2)
   if o1 == nil and o2 == nil then
     return true
   end
@@ -252,13 +251,13 @@ function equal(o1, o2)
 
   if type(o1) == "table" then
 
-    if size(o1) ~= size(o2) then
+    if M.size(o1) ~= M.size(o2) then
       return false
     end
 
     for key, value in pairs(o1) do
       if type(value) == "table" then
-        if not equal(value, o2[key]) then
+        if not M.equal(value, o2[key]) then
           return false
         end
       else
@@ -274,7 +273,7 @@ function equal(o1, o2)
   return true
 end
 
-function checkPercent(percent)
+function M.checkPercent(percent)
   return math.random(1, 100) <= percent
 end
 
@@ -284,27 +283,27 @@ end
 -- https://github.com/mirven/underscore.lua
 --]]--
 
-function push(array, item)
+function M.push(array, item)
 	table.insert(array, item)
 	return array
 end
 
-function pop(array)
+function M.pop(array)
 	return table.remove(array)
 end
 
-function shift(array)
+function M.shift(array)
 	return table.remove(array, 1)
 end
 
-function unshift(array, item)
+function M.unshift(array, item)
 	table.insert(array, 1, item)
 	return array
 end
 
 -- ここまで
 
-function sum(array)
+function M.sum(array)
   local result
   for i, v in ipairs(array) do
     if result then
@@ -316,7 +315,7 @@ function sum(array)
   return result
 end
 
-function extract(array, key)
+function M.extract(array, key)
   local result = {}
   for i, v in ipairs(array) do
    table.insert(result, v[key]) 
@@ -324,3 +323,24 @@ function extract(array, key)
   return result
 end
 
+-- make query string for url
+function M.makeQuery(params)
+  if params == nil or M.size(params) == 0 then
+    return ""
+  end
+  local _ = {}
+  for key, value in pairs(params) do
+    _[#_ + 1] = key .. "=" .. M.urlEncode(tostring(value))
+  end
+  return table.concat(_, "&")
+end
+
+-- sql escape for sqlite3
+function M.sqlEscape(s)
+  if s == nil then return '' end
+
+  local esc, i = s:gsub("'", "''")
+  return esc
+end
+
+return M
