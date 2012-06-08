@@ -1,7 +1,8 @@
 require 'sqlite3'
-local M = {}
+
+local parent = require 'utils'
+local M = parent:new()
 local L = {}
-local _u = require 'utils'
 
 L.TEMP_DATABASE_NAME = "string_length_check_only"
 -- lua基本だとバイト数しか取れないため、sqlite3を利用して文字列長を取得
