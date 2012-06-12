@@ -14,7 +14,8 @@
 -- _ = require 'utils.lua'
 ]]--
 
-local M = {}
+local parent = require 'object'
+local M = parent:new()
 
 function M:new(o)
   o = o or {}

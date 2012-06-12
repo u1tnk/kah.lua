@@ -1,4 +1,10 @@
 local _u = require 'utils'
+
+local parent = require 'object'
+local M = parent:new{
+  defaultFont = native.systemFont,
+  defaultFontSize = 24,
+}
 local L = {}
 
 
@@ -6,18 +12,6 @@ local W = display.contentWidth
 local H = display.contentHeight
 local CX = display.contentCenterX
 local CY = display.contentCenterY
-
-local M = {
-  defaultFont = native.systemFont
-  , defaultFontSize = 24
-}
-
-function M:new(o)
-  o = o or {}
-  setmetatable(o, self)
-  self.__index = self
-  return o
-end
 
 function M:newText(options)
   local defaults = {

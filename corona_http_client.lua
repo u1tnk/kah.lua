@@ -1,19 +1,15 @@
 local _u = require 'utils'
 
-local M = {
-  headers = {}
-  , protocol = "http"
-  , host = "localhost"
-  , method = "get"
-  , port = 80
-}
 
-function M:new(o)
-  o = o or {}
-  setmetatable(o, self)
-  self.__index = self
-  return o
-end
+local parent = require 'object'
+local M = parent:new{
+  headers = {},
+  protocol = "http",
+  host = "localhost",
+  method = "get",
+  port = 80, 
+}
+local L = {}
 
 function M:addHeader(name, value)
   self.headers[name] = value
