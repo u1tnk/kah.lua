@@ -30,7 +30,9 @@ require = function(path)
   if not result then
     result, mod = pcall(L.require, path)
     if not result then
+      local errorMessage = mod
       print("require failed :" .. path)
+      print(errorMessage)
       assert(result, "require failed :" .. path)
     end
   end
