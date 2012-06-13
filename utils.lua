@@ -11,7 +11,7 @@
 -- 改変、付加している
 --
 -- Example.
--- _ = require 'utils.lua'
+-- _u = require 'utils'
 ]]--
 
 local parent = require 'object'
@@ -350,6 +350,10 @@ function M.sqlEscape(s)
 
   local esc, i = s:gsub("'", "''")
   return esc
+end
+
+function M.newObject(o)
+  return  parent:new(o)
 end
 
 return M
