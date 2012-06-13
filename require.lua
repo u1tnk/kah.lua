@@ -26,14 +26,15 @@ require = function(path)
 --   if not intmp then
 --     return nil
 --   end
-  local result, mod = pcall(L.require, string.sub(normalizedPath, 2))
+  normalizedPath = string.sub(normalizedPath, 2)
+  local result, mod = pcall(L.require, normalizedPath)
   if not result then
     result, mod = pcall(L.require, path)
     if not result then
       local errorMessage = mod
-      print("require failed :" .. path)
+      print("require failed :" .. normalizedPath)
       print(errorMessage)
-      assert(result, "require failed :" .. path)
+      assert(result, "origin require failed :" .. path)
     end
   end
 
