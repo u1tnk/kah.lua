@@ -4,7 +4,12 @@ local L = {}
 L.require = require
 L.cwd = ""
 
+local cache = {}
+
 require = function(path)
+  if cache[path] then
+    return cache[path]
+  end
   local prevCwd = L.cwd
 
   local normalizedPath = path

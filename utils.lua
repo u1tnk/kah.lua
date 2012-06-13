@@ -24,6 +24,8 @@ function M:new(o)
   return o
 end
 
+local DEFAULT_PRINT_MAX_LENGTH = 100
+M.printMaxLength = DEFAULT_PRINT_MAX_LENGTH
 function M.tablePrint(tt, indent, done)
   local done = done or {}
   local indent = indent or 0
@@ -44,8 +46,13 @@ function M.tablePrint(tt, indent, done)
       elseif "number" == type(key) then
         table.insert(sb, string.format("\"%s\" ", tostring(value)))
       else
+        local printValue = tostring(value)
+        local cutLength = #printValue
+        if printValue and #printValue > M.printMaxLength then
+          printValue = printValue:sub(1, M.printMaxLength) .. "..."
+        end
         table.insert(sb, string.format(
-            "s = \"%s\"\n", tostring(key), tostring(value)))
+            "\"%s\" = \"%s\"\n", tostring(key), tostring(printValue)))
        end
     end
     return table.concat(sb)
@@ -353,7 +360,7 @@ function M.sqlEscape(s)
 end
 
 function M.newObject(o)
-  return  parent:new(o)
+  return parent:new(o)
 end
 
 return M

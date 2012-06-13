@@ -1,4 +1,3 @@
-module(..., package.seeall)
 local _u = require 'utils'
 
 --[[
