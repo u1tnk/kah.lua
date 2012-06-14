@@ -57,8 +57,11 @@ function M:request(options)
 
   local responseBuffer = {}
 
+  local requestUrl = M.makeUrl(o)
+  _u.p(requestUrl, "request url")
+  _u.p(o)
   local result, code, responseHeaders = http.request{
-    url = M.makeUrl(o),
+    url = requestUrl,
     method = o.method,
     headers = o.headers,
     rediret = o.redirect,
