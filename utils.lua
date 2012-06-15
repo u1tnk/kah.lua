@@ -39,7 +39,11 @@ function M.tablePrint(tt, indent, done)
 
       if type (value) == "table" and not done [value] then
         done [value] = true
-        table.insert(sb, key .. " = {\n");
+        if "number" == type(key) then
+          table.insert(sb, " = {\n");
+        else
+          table.insert(sb, key .. " = {\n");
+        end
         table.insert(sb, M.tablePrint(value, indent + 2, done))
         table.insert(sb, space) -- indent it
         table.insert(sb, "}\n");
