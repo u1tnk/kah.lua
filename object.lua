@@ -10,12 +10,9 @@ function M:new(o)
   return o
 end
 
-function M:parentMethod(methodName)
-  return getmetatable(self).__index[methodName]
-end
-
-function M:callParentMethod(methodName, ...)
-  return self:parentMethod(methodName)(self, ...)
+function M:parent(methodName)
+  return getmetatable(self).__index
 end
 
 return M
+
