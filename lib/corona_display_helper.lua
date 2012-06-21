@@ -118,6 +118,20 @@ function M:newImage(options)
   return display
 end
 
+function M.toFront(object)
+  p(object, "toFront!")
+  if object then
+    object:toFront()
+  end
+end
+
+function M.alignFront(array)
+  for key, value in pairs(array) do
+    p(key)
+    M.toFront(value)
+  end
+end
+
 
 
 return M
