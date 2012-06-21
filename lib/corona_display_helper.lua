@@ -100,5 +100,24 @@ function M:newBorderText(options)
   return this
 end
 
+function M:newImage(options)
+  local defaults = {
+    x = CX,
+    y = CY,
+    width = 0,
+    height = 0,
+    path = nil
+  }
+  local o = _u.setDefault(options, defaults) 
+  assert(o.path)
+
+  local display = display.newImageRect( o.path, o.width, o.height ); 
+  display.x = o.x
+  display.y = o.y
+
+  return display
+end
+
+
 
 return M
