@@ -119,15 +119,13 @@ function M:newImage(options)
 end
 
 function M.toFront(object)
-  p(object, "toFront!")
-  if object then
+  if object and _u.size(object) > 0 then
     object:toFront()
   end
 end
 
 function M.alignFront(array)
   for key, value in pairs(array) do
-    p(key)
     M.toFront(value)
   end
 end
