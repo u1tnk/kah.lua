@@ -100,7 +100,7 @@ function M:newBorderText(options)
   return this
 end
 
-function M:newImage(options)
+function M.newImage(options)
   local defaults = {
     x = CX,
     y = CY,
@@ -109,7 +109,7 @@ function M:newImage(options)
     path = nil
   }
   local o = _u.setDefault(options, defaults) 
-  assert(o.path)
+  assert(o.path, 'path is nil')
 
   local display = display.newImageRect( o.path, o.width, o.height ); 
   display.x = o.x
