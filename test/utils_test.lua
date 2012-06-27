@@ -1,4 +1,4 @@
-package.path = package.path .. ";../?.lua"
+package.path = package.path .. ";../lib/?.lua"
 require "lunit"
 local utils = require 'utils'
 
@@ -74,4 +74,16 @@ function testMakeQuery()
   assert_equal("a=1&b=2", utils.makeQuery({a=1,b=2}), "multi")
   assert_equal("a=1&b=%E3%81%82", utils.makeQuery({a=1,b="あ"}), "multi byte character")
   assert_equal("a=1&b=%7Ba%3D1%7D", utils.makeQuery({a=1,b="{a=1}"}), "json")
+end
+
+function testEquals()
+  assert_true(utils.isEmpty(nil), "nil")
+  assert_true(utils.isEmpty(false), "false")
+  assert_true(utils.isEmpty(""), "empty string")
+  assert_true(utils.isEmpty({}), "empty table")
+  assert_true(utils.isEmpty(0), "0")
+  assert_true(utils.isEmpty(0.0), "0.0")
+  assert_false(utils.isEmpty("a"), "'a'")
+  assert_false(utils.isEmpty("0"), "'0'")
+  assert_false(utils.isEmpty({{}}), "empty in empty")
 end

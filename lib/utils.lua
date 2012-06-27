@@ -367,4 +367,21 @@ function M.newObject(o)
   return parent:new(o)
 end
 
+
+function M.isEmpty(o)
+  if not o then
+    -- false and nil
+    return true
+  end
+  if type(o) == "table" then
+    return M.size(o) == 0
+  elseif type(o) == "string" then
+    return o == ""
+  elseif type(o) == "number" then
+    return o == 0
+  else 
+    return true
+  end
+end
+
 return M
