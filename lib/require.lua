@@ -22,20 +22,20 @@ require = function(path)
     -- path を正規化
     normalizedPath = L.normalize(L.cwd .. normalizedPath)
     
-    -- cwdを変更
-    L.cwd = L.getDirName(normalizedPath)
 
     -- 本来のrequireを実行
     -- 標準ライブラリの場合、先頭に"."がついているとエラーになるので取り除く
 
-    normalizedPath = string.sub(normalizedPath, 2)
+    if string.find(normalizedPath, "^[%.]") then
+      normalizedPath = string.sub(normalizedPath, 2)
+    end
   end
 
+  -- cwdを変更
+  L.cwd = L.getDirName(normalizedPath)
+
   if cache[normalizedPath] then
-    print("cache", normalizedPath)
     return cache[normalizedPath]
-  else
-    print("no cache " ,  normalizedPath)
   end
   local result, mod = pcall(L.require, normalizedPath)
   if not result then
@@ -82,8 +82,14 @@ end
 
 -- フルパスからディレクトリ名のみを抽出
 function L.getDirName(path)
+--   if string.find(path, "^[%.][%.][%.]") then
+--     path = string.sub(path, 4)
+--   end
   path = string.reverse(path)
   local i, j = string.find(path, "%.")
+  if not j then
+    return ""
+  end
   path = string.sub(path, j + 1)
 
   return string.reverse(path)
