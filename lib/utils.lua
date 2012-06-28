@@ -368,6 +368,10 @@ function M.newObject(o)
 end
 
 
+function M.isNotEmpty(o)
+  return not M.isEmpty(o)
+end
+
 function M.isEmpty(o)
   if not o then
     -- false and nil
