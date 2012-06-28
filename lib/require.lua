@@ -7,31 +7,36 @@ L.cwd = ""
 local cache = {}
 
 require = function(path)
-  if cache[path] then
-    return cache[path]
-  end
   local prevCwd = L.cwd
 
   local normalizedPath = path
-  -- 先頭が"." もしくは  ".."ではない時、pathの先頭に"."を付与
-  if string.find(path, "^[^%.]") and #path == 1 or string.find(path, "^[^%.][^%.]") then
+  -- 先頭が"."ではない時、pathの先頭に"."を付与
+  if string.find(path, "^[^%.]") then
     normalizedPath = "." .. path
   end
   
-  -- path を正規化
-  normalizedPath = L.normalize(L.cwd .. normalizedPath)
-  
-  -- cwdを変更
-  L.cwd = L.getDirName(normalizedPath)
+  -- ...で始まるときは絶対パス
+  if string.find(path, "^[%.][%.][%.]") then
+    normalizedPath = string.sub(normalizedPath, 4)
+  else
+    -- path を正規化
+    normalizedPath = L.normalize(L.cwd .. normalizedPath)
+    
+    -- cwdを変更
+    L.cwd = L.getDirName(normalizedPath)
 
-  -- 本来のrequireを実行
-  -- 標準ライブラリの場合、先頭に"."がついているとエラーになるので取り除く
+    -- 本来のrequireを実行
+    -- 標準ライブラリの場合、先頭に"."がついているとエラーになるので取り除く
 
---   local intmp = io.open(path, 'r')
---   if not intmp then
---     return nil
---   end
-  normalizedPath = string.sub(normalizedPath, 2)
+    normalizedPath = string.sub(normalizedPath, 2)
+  end
+
+  if cache[normalizedPath] then
+    print("cache", normalizedPath)
+    return cache[normalizedPath]
+  else
+    print("no cache " ,  normalizedPath)
+  end
   local result, mod = pcall(L.require, normalizedPath)
   if not result then
     result, mod = pcall(L.require, path)
@@ -45,6 +50,8 @@ require = function(path)
 
   -- require が終わったらcwdをrequire前の値に戻す
   L.cwd = prevCwd
+
+  cache[normalizedPath] = mod
 
   return mod
 end
