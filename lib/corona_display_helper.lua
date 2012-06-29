@@ -131,5 +131,42 @@ function M.alignFront(array)
 end
 
 
+function M.alignFront(array)
+  for key, value in pairs(array) do
+    M.toFront(value)
+  end
+end
+
+function M:newGridList(options)
+  local defaults = {
+    x = 0,
+    y = 0,
+    width = W,
+    height = H,
+    columns = 3,
+    rows = 3, -- これは表示上なのでこれ以上のデータも配置される
+    elements = elements,
+  }
+  local o = _u.setDefault(options, defaults) 
+
+  local group = display.newGroup()
+
+  local xGridUnit = math.floor(o.width / o.columns)
+  local yGridUnit = math.floor(o.height / o.rows)
+
+  for i, value in ipairs(o.elements) do
+    value:setReferencePoint(display.CenterReferencePoint)
+    local xPosition = (i - 1) % o.columns + 1
+    local yPosition = math.floor((i - 1) / o.rows) + 1
+    value.x = o.x + ((xPosition - 1) * xGridUnit) + (xGridUnit / 2)
+    value.y = o.y + ((yPosition - 1) * yGridUnit) + (yGridUnit / 2)
+    group:insert(value)
+  end
+
+  -- TODO mask, scroll
+  
+  return group
+end
+
 
 return M
