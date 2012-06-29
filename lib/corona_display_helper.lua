@@ -100,7 +100,7 @@ function M:newBorderText(options)
   return this
 end
 
-function M.newImage(options)
+function M:newImage(options)
   local defaults = {
     x = CX,
     y = CY,
