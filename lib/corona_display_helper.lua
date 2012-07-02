@@ -4,6 +4,7 @@ local parent = require 'object'
 local M = parent:new{
   defaultFont = native.systemFont,
   defaultFontSize = 24,
+  imagesPath = 'kahlua/images',
 }
 local L = {}
 
@@ -150,6 +151,8 @@ function M:newGridList(options)
   local o = _u.setDefault(options, defaults) 
 
   local group = display.newGroup()
+  group.x = o.x
+  group.y = o.y
 
   local xGridUnit = math.floor(o.width / o.columns)
   local yGridUnit = math.floor(o.height / o.rows)
@@ -157,14 +160,20 @@ function M:newGridList(options)
   for i, value in ipairs(o.elements) do
     value:setReferencePoint(display.CenterReferencePoint)
     local xPosition = (i - 1) % o.columns + 1
-    local yPosition = math.floor((i - 1) / o.rows) + 1
-    value.x = o.x + ((xPosition - 1) * xGridUnit) + (xGridUnit / 2)
-    value.y = o.y + ((yPosition - 1) * yGridUnit) + (yGridUnit / 2)
+    local yPosition = math.floor((i - 1) / o.columns) + 1
+    value.x = ((xPosition - 1) * xGridUnit) + (xGridUnit / 2)
+    value.y = ((yPosition - 1) * yGridUnit) + (yGridUnit / 2)
     group:insert(value)
   end
 
-  -- TODO mask, scroll
-  
+
+  local mask = graphics.newMask(self.imagesPath .. "/mask_square_100.png")
+  group:setMask( mask )
+  group.maskX = group.width / 2
+  group.maskY = group.height / 2
+  group.maskScaleX = group.width / 100
+  group.maskScaleY = group.height / 100
+
   return group
 end
 
