@@ -388,4 +388,13 @@ function M.isEmpty(o)
   end
 end
 
+function M.copyPropertyIfExist(from, to, property)
+  local value = from[property]
+  p(value, "value")
+  if value then
+    to[property] = value
+  end
+  return to
+end
+
 return M

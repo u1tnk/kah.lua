@@ -4,7 +4,8 @@ local parent = require 'object'
 local M = parent:new{
   defaultFont = native.systemFont,
   defaultFontSize = 24,
-  imagesPath = 'kahlua/images',
+  -- kahlua以下に置いて symbolic link経由で読み込ませようとしたがpackageしてくれない
+  imagesPath = 'static/images/kahlua',
 }
 local L = {}
 
@@ -24,6 +25,7 @@ function M:newText(options)
     text = "",
     width = 0,
     height = 0,
+    parent = nil,
   }
   local o = _u.setDefault(options, defaults) 
   local displayText
@@ -34,8 +36,48 @@ function M:newText(options)
   end
   displayText:setTextColor(_u.color(o.color))
 
+  if o.parent then
+    o.parent:insert(displayText)
+  end
+
   return displayText
 end
+
+function M:newRect(options)
+  local defaults = {
+    parent = nil,
+    x = nil,
+    y = nil,
+    top = 0,
+    left = 0,
+    width = nil,
+    height = nil,
+    fillColor = "000",
+    strokeColor = nil,
+    alpha = nil,
+  }
+  local o = _u.setDefault(options, defaults) 
+  assert(o.width, "width is required")
+  assert(o.height, "height is required")
+
+  p(o, "ooooo")
+  local target = display.newRect(o.top, o.left, o.width, o.height)
+  target:setFillColor(_u.color(o.fillColor))
+  if o.strokeColor then
+    target:setStrokeColor(_u.color(o.strokeColor))
+  end
+
+  _u.copyPropertyIfExist(o, target, "x")
+  _u.copyPropertyIfExist(o, target, "y")
+  _u.copyPropertyIfExist(o, target, "alpha")
+
+  if o.parent then
+    o.parent:insert(displayText)
+  end
+
+  return target
+end
+
 
 function M:newBorderText(options)
   local defaults = {
@@ -157,23 +199,65 @@ function M:newGridList(options)
   local xGridUnit = math.floor(o.width / o.columns)
   local yGridUnit = math.floor(o.height / o.rows)
 
+  local lists = display.newGroup()
+  group:insert(lists)
+
+  local touchBlock = self:newRect{width = o.width, height = o.height,  alpha = 0}
+  touchBlock.isHitTestable = true
+  touchBlock.isHitTestMasked = true
+  group:insert(touchBlock)
+
   for i, value in ipairs(o.elements) do
     value:setReferencePoint(display.CenterReferencePoint)
     local xPosition = (i - 1) % o.columns + 1
     local yPosition = math.floor((i - 1) / o.columns) + 1
     value.x = ((xPosition - 1) * xGridUnit) + (xGridUnit / 2)
     value.y = ((yPosition - 1) * yGridUnit) + (yGridUnit / 2)
-    group:insert(value)
+    lists:insert(value)
   end
 
-
-  local mask = graphics.newMask(self.imagesPath .. "/mask_square_100.png")
+  local mask = graphics.newMask(self.imagesPath .. "/mask_square.png")
   group:setMask( mask )
-  group.maskX = group.width / 2
-  group.maskY = group.height / 2
-  group.maskScaleX = group.width / 100
-  group.maskScaleY = group.height / 100
+  group.maskX = o.width / 2
+  group.maskY = o.height / 2
+  group.maskScaleX = o.width / 256
+  group.maskScaleY = o.height / 256
+  group.isHitTestable = true
+  group.isHitTestMasked = true
 
+  local isFocus = false
+  local yStart = lists.y
+  local yLast = lists.y
+
+
+      p(lists.height)
+      p(lists.height)
+  touchBlock:addEventListener("touch", function(e)
+    if "began" == e.phase then
+      display.getCurrentStage():setFocus(touchBlock)
+      isFocus = true
+    end
+
+    if not isFocus  then
+      return false
+    end
+
+    local yDiff = e.y - e.yStart
+    local newY = yStart + yDiff
+
+    if e.phase == "moved" then
+      if o.height - lists.height < newY and newY < 0 then
+        lists.y = newY
+        yLast = newY
+      end
+    end
+    if e.phase == "ended" then
+      display.getCurrentStage():setFocus(nil)
+      isFocus = false
+      yStart = yLast
+    end
+  end)
+  
   return group
 end
 
