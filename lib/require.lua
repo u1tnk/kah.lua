@@ -35,6 +35,7 @@ require = function(path)
   L.cwd = L.getDirName(normalizedPath)
 
   if cache[normalizedPath] then
+    L.cwd = prevCwd
     return cache[normalizedPath]
   end
   local result, mod = pcall(L.require, normalizedPath)
