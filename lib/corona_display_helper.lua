@@ -191,7 +191,8 @@ function M:newGridList(options)
     longTapTime = 500,
     onTap = function() end,
     onLongTap = function() end,
-    masked = true
+    masked = true,
+    scrollable = true,
   }
   local o = _u.setDefault(options, defaults) 
 
@@ -247,56 +248,58 @@ function M:newGridList(options)
     group.maskScaleY = o.height / 225
   end
 
-  local yStart = lists.y
-  local yLast = lists.y
-  local endedTimer
-  -- 普通にfocusを使うとelementsにイベントが飛ばなくなるため自力focus
-  local focus = false
+  if o.scrollable then
+    local yStart = lists.y
+    local yLast = lists.y
+    local endedTimer
+    -- 普通にfocusを使うとelementsにイベントが飛ばなくなるため自力focus
+    local focus = false
 
-  local function endedCallback(newY)
-    focus = false
-    local yBottom = o.height - lists.height
-    if yBottom > newY  then
-      transition.to(lists, {y = o.height - lists.height, time = 300, transition=easing.inQuad})
-      yStart, yLast = yBottom, yBottom
-    elseif newY > 0 then
-      transition.to(lists, {y = 0, time = 300, transition=easing.inQuad})
-      yStart, yLast = 0, 0
-    else
-      yStart = yLast
-    end
-  end
-
-  touchBlock:addEventListener("touch", function(e)
-    local yDiff = e.y - e.yStart
-    local newY = yStart + yDiff
-
-    if e.phase == "began" then
-      focus = true
+    local function endedCallback(newY)
+      focus = false
+      local yBottom = o.height - lists.height
+      if yBottom > newY  then
+        transition.to(lists, {y = o.height - lists.height, time = 300, transition=easing.inQuad})
+        yStart, yLast = yBottom, yBottom
+      elseif newY > 0 then
+        transition.to(lists, {y = 0, time = 300, transition=easing.inQuad})
+        yStart, yLast = 0, 0
+      else
+        yStart = yLast
+      end
     end
 
-    if not focus then
-      return
-    end
+    touchBlock:addEventListener("touch", function(e)
+      local yDiff = e.y - e.yStart
+      local newY = yStart + yDiff
 
-    if e.phase == "moved" then
-        lists.y = newY
-        yLast = newY
+      if e.phase == "began" then
+        focus = true
+      end
+
+      if not focus then
+        return
+      end
+
+      if e.phase == "moved" then
+          lists.y = newY
+          yLast = newY
+          if endedTimer then
+            timer.cancel(endedTimer)
+          end
+          endedTimer = timer.performWithDelay(100, function()
+            endedCallback(newY)
+          end)
+      end
+
+      if e.phase == "ended" then
         if endedTimer then
           timer.cancel(endedTimer)
         end
-        endedTimer = timer.performWithDelay(100, function()
-          endedCallback(newY)
-        end)
-    end
-
-    if e.phase == "ended" then
-      if endedTimer then
-        timer.cancel(endedTimer)
+        endedCallback(newY)
       end
-      endedCallback(newY)
-    end
-  end)
+    end)
+  end
   
   return group
 end
