@@ -9,7 +9,6 @@ local M = parent:new{
 }
 local L = {}
 
-
 local W = display.contentWidth
 local H = display.contentHeight
 local CX = display.contentCenterX
@@ -60,7 +59,6 @@ function M:newRect(options)
   assert(o.width, "width is required")
   assert(o.height, "height is required")
 
-  p(o, "ooooo")
   local target = display.newRect(o.top, o.left, o.width, o.height)
   target:setFillColor(_u.color(o.fillColor))
   if o.strokeColor then
@@ -189,12 +187,15 @@ function M:newGridList(options)
     columns = 3,
     rows = 3, -- これは表示上なのでこれ以上のデータも配置される
     elements = elements,
+    tapArea = 30,
+    longTapTime = 500,
+    onTap = function() end,
+    onLongTap = function() end,
+    masked = true
   }
   local o = _u.setDefault(options, defaults) 
 
   local group = display.newGroup()
-  group.x = o.x
-  group.y = o.y
 
   local xGridUnit = math.floor(o.width / o.columns)
   local yGridUnit = math.floor(o.height / o.rows)
@@ -202,59 +203,98 @@ function M:newGridList(options)
   local lists = display.newGroup()
   group:insert(lists)
 
-  local touchBlock = self:newRect{width = o.width, height = o.height,  alpha = 0}
+  local touchBlock = self:newRect{top = o.x, left = o.y, width = o.width, height = o.height, alpha = 0}
   touchBlock.isHitTestable = true
-  touchBlock.isHitTestMasked = true
   group:insert(touchBlock)
+
+  local longTapTimer
 
   for i, value in ipairs(o.elements) do
     value:setReferencePoint(display.CenterReferencePoint)
     local xPosition = (i - 1) % o.columns + 1
     local yPosition = math.floor((i - 1) / o.columns) + 1
-    value.x = ((xPosition - 1) * xGridUnit) + (xGridUnit / 2)
-    value.y = ((yPosition - 1) * yGridUnit) + (yGridUnit / 2)
+    value.x = o.x + ((xPosition - 1) * xGridUnit) + (xGridUnit / 2)
+    value.y = o.y + ((yPosition - 1) * yGridUnit) + (yGridUnit / 2)
+
+    local touchListener = function(e)
+      if e.phase == "began" then
+        longTapTimer = timer.performWithDelay(o.longTapTime, function()
+          o.onLongTap(value)
+        end)
+      else
+        if longTapTimer then
+          timer.cancel(longTapTimer)
+        end
+      end
+
+      if e.phase == "ended" then
+        if math.abs(e.xStart - e.x) < o.tapArea and math.abs(e.yStart - e.y) < o.tapArea  then
+          o.onTap(value)
+        end
+      end
+    end
+    value:addEventListener("touch", touchListener)
     lists:insert(value)
   end
 
-  local mask = graphics.newMask(self.imagesPath .. "/mask_square.png")
-  group:setMask( mask )
-  group.maskX = o.width / 2
-  group.maskY = o.height / 2
-  group.maskScaleX = o.width / 256
-  group.maskScaleY = o.height / 256
-  group.isHitTestable = true
-  group.isHitTestMasked = true
+  if o.masked then
+    local mask = graphics.newMask(self.imagesPath .. "/mask_square.png")
+    group:setMask( mask )
+    group.maskX = o.x + o.width / 2
+    group.maskY = o.y + o.height / 2
+    -- 本来は256だが、マスクの制限で内部に4px黒が入るので、広めにマスク
+    group.maskScaleX = o.width / 225
+    group.maskScaleY = o.height / 225
+  end
 
-  local isFocus = false
   local yStart = lists.y
   local yLast = lists.y
+  local endedTimer
+  -- 普通にfocusを使うとelementsにイベントが飛ばなくなるため自力focus
+  local focus = false
 
+  local function endedCallback(newY)
+    focus = false
+    local yBottom = o.height - lists.height
+    if yBottom > newY  then
+      transition.to(lists, {y = o.height - lists.height, time = 300, transition=easing.inQuad})
+      yStart, yLast = yBottom, yBottom
+    elseif newY > 0 then
+      transition.to(lists, {y = 0, time = 300, transition=easing.inQuad})
+      yStart, yLast = 0, 0
+    else
+      yStart = yLast
+    end
+  end
 
-      p(lists.height)
-      p(lists.height)
   touchBlock:addEventListener("touch", function(e)
-    if "began" == e.phase then
-      display.getCurrentStage():setFocus(touchBlock)
-      isFocus = true
-    end
-
-    if not isFocus  then
-      return false
-    end
-
     local yDiff = e.y - e.yStart
     local newY = yStart + yDiff
 
+    if e.phase == "began" then
+      focus = true
+    end
+
+    if not focus then
+      return
+    end
+
     if e.phase == "moved" then
-      if o.height - lists.height < newY and newY < 0 then
         lists.y = newY
         yLast = newY
-      end
+        if endedTimer then
+          timer.cancel(endedTimer)
+        end
+        endedTimer = timer.performWithDelay(100, function()
+          endedCallback(newY)
+        end)
     end
+
     if e.phase == "ended" then
-      display.getCurrentStage():setFocus(nil)
-      isFocus = false
-      yStart = yLast
+      if endedTimer then
+        timer.cancel(endedTimer)
+      end
+      endedCallback(newY)
     end
   end)
   
