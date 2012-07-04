@@ -17,6 +17,12 @@
 local parent = require 'object'
 local M = parent:new()
 
+-- type
+local STRING = 'string'
+local NUMBER = 'number'
+local TABLE = 'table'
+local FUNCTION = 'function'
+
 function M:new(o)
   o = o or {}
   setmetatable(o, self)
@@ -395,6 +401,22 @@ function M.copyPropertyIfExist(from, to, property)
     to[property] = value
   end
   return to
+end
+
+function M.isFunction(o)
+  return type(o) == FUNCTION
+end
+
+function M.isString(o)
+  return type(o) == STRING
+end
+
+function M.isNumber(o)
+  return type(o) == NUMBER
+end
+
+function M.isTable(o)
+  return type(o) == TABLE
 end
 
 return M
