@@ -17,11 +17,6 @@
 local parent = require 'object'
 local M = parent:new()
 
--- type
-local STRING = 'string'
-local NUMBER = 'number'
-local TABLE = 'table'
-local FUNCTION = 'function'
 
 function M:new(o)
   o = o or {}
@@ -37,15 +32,15 @@ function M.tablePrint(tt, indent, done)
   local indent = indent or 0
   local space = string.rep(" ", indent)
 
-  if type(tt) == "table" then
+  if M.isTable(tt) then
     local sb = {}
 
     for key, value in pairs(tt) do
       table.insert(sb, space) -- indent it
 
-      if type (value) == "table" and not done [value] then
+      if M.isTable(value) and not done [value] then
         done [value] = true
-        if "number" == type(key) then
+        if M.isNumber(key) then
           table.insert(sb, " = {\n");
         else
           table.insert(sb, key .. " = {\n");
@@ -53,7 +48,7 @@ function M.tablePrint(tt, indent, done)
         table.insert(sb, M.tablePrint(value, indent + 2, done))
         table.insert(sb, space) -- indent it
         table.insert(sb, "}\n");
-      elseif "number" == type(key) then
+      elseif M.isNumber(key) then
         table.insert(sb, string.format("\"%s\" ", tostring(value)))
       else
         local printValue = tostring(value)
@@ -72,11 +67,11 @@ function M.tablePrint(tt, indent, done)
 end
 
 function M.toString(data)
-  if "nil" == type(data) then
+  if data == nil then
     return tostring(nil)
-  elseif "table" == type(data) then
+  elseif M.isTable(data) then
     return M.tablePrint(data)
-  elseif  "string" == type(data) then
+  elseif M.isString(data) then
     return data
   else
     return tostring(data)
@@ -275,14 +270,14 @@ function M.equal(o1, o2)
     return false
   end
 
-  if type(o1) == "table" then
+  if M.isTable(o1) then
 
     if M.size(o1) ~= M.size(o2) then
       return false
     end
 
     for key, value in pairs(o1) do
-      if type(value) == "table" then
+      if M.isTable(value) then
         if not M.equal(value, o2[key]) then
           return false
         end
@@ -383,11 +378,11 @@ function M.isEmpty(o)
     -- false and nil
     return true
   end
-  if type(o) == "table" then
+  if M.isTable(o) then
     return M.size(o) == 0
-  elseif type(o) == "string" then
+  elseif M.isString(o)  then
     return o == ""
-  elseif type(o) == "number" then
+  elseif M.isNumber(o) then
     return o == 0
   else 
     return true
@@ -396,7 +391,6 @@ end
 
 function M.copyPropertyIfExist(from, to, property)
   local value = from[property]
-  p(value, "value")
   if value then
     to[property] = value
   end
@@ -404,19 +398,19 @@ function M.copyPropertyIfExist(from, to, property)
 end
 
 function M.isFunction(o)
-  return type(o) == FUNCTION
+  return type(o) == "function"
 end
 
 function M.isString(o)
-  return type(o) == STRING
+  return type(o) == "string"
 end
 
 function M.isNumber(o)
-  return type(o) == NUMBER
+  return type(o) == "number"
 end
 
 function M.isTable(o)
-  return type(o) == TABLE
+  return type(o) == "table"
 end
 
 return M
