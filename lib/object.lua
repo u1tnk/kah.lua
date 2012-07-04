@@ -10,7 +10,7 @@ function M:new(o)
   return o
 end
 
-function M:parent(methodName)
+function M:parent()
   return getmetatable(self).__index
 end
 
