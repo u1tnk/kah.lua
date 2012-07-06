@@ -211,6 +211,25 @@ function M:newImage(options)
   return display
 end
 
+function M:newTextField(options)
+  local defaults = {
+    x = 0,
+    y = 0,
+    width = 0,
+    height = 0,
+    path = nil,
+  }
+
+  local o = _u.setDefault(options, defaults) 
+
+  local target = native.newTextField(o.x, o.y, o.width, o.height); 
+
+  self:newCommon(target, options)
+
+  return target
+end
+
+
 function M:newVector(options)
   local defaults = {
     x = 0,
