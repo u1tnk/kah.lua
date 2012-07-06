@@ -14,6 +14,58 @@ local H = display.contentHeight
 local CX = display.contentCenterX
 local CY = display.contentCenterY
 
+function M:newGroup(options)
+  local defaults = {
+    x = nil,
+    y = nil,
+    parent = nil,
+  }
+  local o = _u.setDefault(options, defaults) 
+  local group = display.newGroup()
+  if o.x then
+    group.x = o.x
+  end
+  if o.y then
+    group.y = o.y
+  end
+
+  self:newCommon(group, options)
+
+  return group
+end
+
+function M:newCommon(target, options)
+  local defaults = {
+    parent = nil,
+  }
+
+  if options.parent then
+    options.parent:insert(target)
+  end
+
+  return target
+
+end
+
+-- target(displayObject), x, y, reference(referencePoint)の配列を渡す
+function M:insertGroup(group, children)
+  for i, child in ipairs(children) do
+    group:insert(child.target)
+    if child.reference then
+      child.target:setReferencePoint(child.reference)
+    else
+      -- groupで使うときはcenterが一番使いやすいので
+      child.target:setReferencePoint(display.CenterReferencePoint)
+    end
+    if child.x then
+      child.target.x = child.x
+    end
+    if child.y then
+      child.target.y = child.y
+    end
+  end
+end
+
 function M:newText(options)
   local defaults = {
     x = 0,
@@ -35,9 +87,7 @@ function M:newText(options)
   end
   displayText:setTextColor(_u.color(o.color))
 
-  if o.parent then
-    o.parent:insert(displayText)
-  end
+  self:newCommon(displayText, options)
 
   return displayText
 end
@@ -69,9 +119,7 @@ function M:newRect(options)
   _u.copyPropertyIfExist(o, target, "y")
   _u.copyPropertyIfExist(o, target, "alpha")
 
-  if o.parent then
-    o.parent:insert(displayText)
-  end
+  self:newCommon(target, options)
 
   return target
 end
@@ -138,26 +186,83 @@ function M:newBorderText(options)
   this.x = x
   this.y = y
 
+  self:newCommon(this, options)
+
   return this
 end
 
 function M:newImage(options)
   local defaults = {
-    x = CX,
-    y = CY,
+    x = 0,
+    y = 0,
     width = 0,
     height = 0,
-    path = nil
+    path = nil,
   }
   local o = _u.setDefault(options, defaults) 
-  assert(o.path, 'path is nil')
+  assert(o.path, 'path is required')
 
-  local display = display.newImageRect( o.path, o.width, o.height ); 
+  local display = display.newImageRect(o.path, o.width, o.height ); 
   display.x = o.x
   display.y = o.y
 
+  self:newCommon(display, options)
+
   return display
 end
+
+function M:newVector(options)
+  local defaults = {
+    x = 0,
+    y = 0,
+    type = nil,
+    fillColor = nil,
+    strokeColor = nil,
+  }
+  local o = _u.setDefault(options, defaults) 
+  assert(o.type, 'type is required')
+
+  local target
+  if o.type == "circle" then
+    target = display.newCircle(o.x, o.y, o.radius); 
+  elseif o.type == "roundedRect" then
+    target = display.newRoundedRect(o.x, o.y, o.width, o.height, o.radius); 
+  end
+  if o.fillColor then
+    target:setFillColor(_u.color(o.fillColor))
+  end
+  if o.strokeColor then
+    target:setStrokeColor(_u.color(o.strokeColor))
+  end
+
+  self:newCommon(target, options)
+
+  return target
+end
+
+function M:newCircle(options)
+  local defaults = {
+    radius = nil,
+  }
+  local o = _u.setDefault(options, defaults) 
+  assert(o.radius, 'radius is required')
+  o.type = "circle"
+
+  return self:newVector(o)
+end
+
+function M:newRoundedRect(options)
+  local defaults = {
+    radius = nil,
+  }
+  local o = _u.setDefault(options, defaults) 
+  assert(o.radius, 'radius is required')
+  o.type = "roundedRect"
+
+  return self:newVector(o)
+end
+
+
 
 function M.toFront(object)
   if object and _u.size(object) > 0 then
@@ -193,6 +298,7 @@ function M:newGridList(options)
     onLongTap = function() end,
     masked = true,
     scrollable = true,
+    parent = nil,
   }
   local o = _u.setDefault(options, defaults) 
 
@@ -248,7 +354,7 @@ function M:newGridList(options)
     group.maskScaleY = o.height / 225
   end
 
-  if o.scrollable then
+  if o.scrollable and o.height < lists.height then
     local yStart = lists.y
     local yLast = lists.y
     local endedTimer
@@ -300,6 +406,8 @@ function M:newGridList(options)
       end
     end)
   end
+
+  self:newCommon(group, options)
   
   return group
 end
