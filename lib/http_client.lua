@@ -15,6 +15,7 @@ local M = parent:new{
   redirect = true,
   queryParams = nil,
 }
+
 local L = {}
 function M.makeUrl(o)
   local url = {o.protocol, "://", o.host}
@@ -59,7 +60,6 @@ function M:request(options)
 
   local requestUrl = M.makeUrl(o)
   _u.p(requestUrl, "request url")
-  _u.p(o)
   local result, code, responseHeaders = http.request{
     url = requestUrl,
     method = o.method,
