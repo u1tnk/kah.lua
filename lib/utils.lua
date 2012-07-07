@@ -390,10 +390,21 @@ function M.isEmpty(o)
 end
 
 function M.copyPropertyIfExist(from, to, property)
-  local value = from[property]
-  if value then
-    to[property] = value
+  local properties 
+  if M.isTable(property) then
+    properties = property
+  else
+    properties = {}
+    table.insert(properties, property)
   end
+
+  for i, p in ipairs(properties) do
+    local value = from[p]
+    if value then
+      to[p] = value
+    end
+  end
+
   return to
 end
 

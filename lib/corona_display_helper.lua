@@ -14,6 +14,11 @@ local H = display.contentHeight
 local CX = display.contentCenterX
 local CY = display.contentCenterY
 
+M.W = W
+M.H = H
+M.CX = CX
+M.CY = CY
+
 function M:newGroup(options)
   local defaults = {
     x = nil,
@@ -22,14 +27,14 @@ function M:newGroup(options)
   }
   local o = _u.setDefault(options, defaults) 
   local group = display.newGroup()
-  if o.x then
-    group.x = o.x
-  end
-  if o.y then
-    group.y = o.y
-  end
+  _u.copyPropertyIfExist(o, group, {"x", "y"})
 
   self:newCommon(group, options)
+
+  local insertGroup = self.insertGroup
+  function group:insertGroup(targets)
+    insertGroup(self, targets)
+  end
 
   return group
 end
@@ -50,18 +55,17 @@ end
 -- target(displayObject), x, y, reference(referencePoint)の配列を渡す
 function M:insertGroup(group, children)
   for i, child in ipairs(children) do
-    group:insert(child.target)
-    if child.reference then
-      child.target:setReferencePoint(child.reference)
-    else
-      -- groupで使うときはcenterが一番使いやすいので
-      child.target:setReferencePoint(display.CenterReferencePoint)
-    end
-    if child.x then
-      child.target.x = child.x
-    end
-    if child.y then
-      child.target.y = child.y
+    if child.target then
+      group:insert(child.target)
+      if child.reference then
+        child.target:setReferencePoint(child.reference)
+      else
+        -- groupで使うときはcenterが一番使いやすいので
+        child.target:setReferencePoint(display.CenterReferencePoint)
+      end
+      _u.copyPropertyIfExist(child, child.target, {"x", "y"})
+    else 
+      group:insert(child)
     end
   end
 end
@@ -115,9 +119,7 @@ function M:newRect(options)
     target:setStrokeColor(_u.color(o.strokeColor))
   end
 
-  _u.copyPropertyIfExist(o, target, "x")
-  _u.copyPropertyIfExist(o, target, "y")
-  _u.copyPropertyIfExist(o, target, "alpha")
+  _u.copyPropertyIfExist(o, target, {"x", "y", "alpha"})
 
   self:newCommon(target, options)
 
