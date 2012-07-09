@@ -20,7 +20,7 @@ function M:asyncRequest(options)
   local params = {}
   params.headers = o.headers
   params.body = o.body
-  network.request(M.makeUrl(o), options.method, networkListener, params)
+  network.request(_u.makeUrl(o), options.method, networkListener, params)
 end
 
 return M

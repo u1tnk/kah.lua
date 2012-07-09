@@ -17,18 +17,8 @@ local M = parent:new{
 }
 
 local L = {}
-function M.makeUrl(o)
-  local url = {o.protocol, "://", o.host}
-  if o.port then
-    url[#url + 1] = ":"
-    url[#url + 1] = o.port
-  end
-  url[#url + 1] = o.path
-  if o.queryParams then
-    url[#url + 1] = "?"
-    url[#url + 1] = _u.makeQuery(o.queryParams)
-  end
-  return table.concat(url)
+function M:serviceRootUrl()
+  return _u.makeUrl(self)
 end
 
 function M:addHeader(name, value)
@@ -58,7 +48,7 @@ function M:request(options)
 
   local responseBuffer = {}
 
-  local requestUrl = M.makeUrl(o)
+  local requestUrl = _u.makeUrl(o)
   _u.p(requestUrl, "request url")
   local result, code, responseHeaders = http.request{
     url = requestUrl,

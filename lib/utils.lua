@@ -424,4 +424,30 @@ function M.isTable(o)
   return type(o) == "table"
 end
 
+
+function M.makeUrl(options)
+  local defaults =  {
+    protocol = "http",
+    host = "localhost",
+    port = 80,
+    path = "",
+    queryParams = nil,
+  }
+  local o = M.setDefault(options, defaults)
+  local url = {o.protocol, "://", o.host}
+  M.p(o)
+  if o.port and
+    not ( o.protocol == "http" and o.port == 80) 
+    then
+    url[#url + 1] = ":"
+    url[#url + 1] = o.port
+  end
+  url[#url + 1] = o.path
+  if o.queryParams then
+    url[#url + 1] = "?"
+    url[#url + 1] = _u.makeQuery(o.queryParams)
+  end
+  return table.concat(url)
+end
+
 return M
