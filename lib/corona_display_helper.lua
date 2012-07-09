@@ -31,9 +31,10 @@ function M:newGroup(options)
 
   self:newCommon(group, options)
 
+  local helper = self
   local insertGroup = self.insertGroup
   function group:insertGroup(targets)
-    insertGroup(self, targets)
+    insertGroup(helper, self, targets)
   end
 
   return group
