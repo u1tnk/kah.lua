@@ -29,7 +29,7 @@ function M:newGroup(options)
   local group = display.newGroup()
   _u.copyPropertyIfExist(o, group, {"x", "y"})
 
-  self:newCommon(group, options)
+  self:newCommon(group, o)
 
   local helper = self
   local insertGroup = self.insertGroup
