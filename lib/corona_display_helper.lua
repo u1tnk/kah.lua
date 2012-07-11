@@ -201,17 +201,18 @@ function M:newImage(options)
     width = 0,
     height = 0,
     path = nil,
+    baseDirectory = system.ResourceDirectory,
   }
   local o = _u.setDefault(options, defaults) 
   assert(o.path, 'path is required')
 
-  local display = display.newImageRect(o.path, o.width, o.height ); 
-  display.x = o.x
-  display.y = o.y
+  local target = display.newImageRect(o.path, o.baseDirectory, o.width, o.height ); 
+  target.x = o.x
+  target.y = o.y
 
-  self:newCommon(display, options)
+  self:newCommon(target, options)
 
-  return display
+  return target
 end
 
 function M:newTextField(options)
@@ -313,7 +314,7 @@ function M:newGridList(options)
     height = H,
     columns = 3,
     rows = 3, -- これは表示上なのでこれ以上のデータも配置される
-    elements = elements,
+    elements = nil,
     tapArea = 30,
     longTapTime = 500,
     onTap = function() end,

@@ -435,7 +435,6 @@ function M.makeUrl(options)
   }
   local o = M.setDefault(options, defaults)
   local url = {o.protocol, "://", o.host}
-  M.p(o)
   if o.port and
     not ( o.protocol == "http" and o.port == 80) 
     then
