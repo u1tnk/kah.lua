@@ -109,3 +109,12 @@ function testIsType()
   assert_false(utils.isString(0), "string but number")
   assert_false(utils.isString(nil), "string but nil")
 end
+
+function testGetKeyByValue()
+  local tableValue = {hoge = "hoge"}
+  local testData = {"1", two = "2", tableValue = tableValue}
+  assert_equal(1, utils.getKeyByValue(testData, "1"), "array")
+  assert_equal("two", utils.getKeyByValue(testData, "2"), "hash")
+  assert_equal("tableValue", utils.getKeyByValue(testData, tableValue), "hash")
+  assert_equal(nil, utils.getKeyByValue(testData, "hoge"), "not found")
+end
