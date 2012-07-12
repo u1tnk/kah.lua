@@ -366,8 +366,9 @@ function M:newGridList(options)
     value:addEventListener("touch", touchListener)
     lists:insert(value)
   end
+  local overRange = o.height < lists.height
 
-  if o.masked then
+  if o.masked and overRange then
     local mask = graphics.newMask(self.imagesPath .. "/mask_square.png")
     group:setMask( mask )
     group.maskX = o.x + o.width / 2
@@ -377,7 +378,7 @@ function M:newGridList(options)
     group.maskScaleY = o.height / 225
   end
 
-  if o.scrollable and o.height < lists.height then
+  if o.scrollable and overRange  then
     local yStart = lists.y
     local yLast = lists.y
     local endedTimer
