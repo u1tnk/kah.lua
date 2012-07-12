@@ -72,7 +72,7 @@ function M:newTl()
 
   tl.parallel = function(getTimelines)
     table.insert(queue, function()
-      local tls = {getTimelines()}
+      local tls = getTimelines()
       local n
       local count = #tls
       n = function()
