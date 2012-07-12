@@ -19,4 +19,13 @@ function M.stringLength(s)
   return result
 end
 
+function M.printMemoryStatus()
+
+    collectgarbage()
+    M.p(collectgarbage("count"), "Memory Usage")
+
+    local textMem = system.getInfo( "textureMemoryUsed" ) / 1000000
+    M.p(textMem, "textureMemoryUsed")
+end
+
 return M
