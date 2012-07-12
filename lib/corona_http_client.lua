@@ -49,8 +49,6 @@ function M:asyncDownload(options)
     o.savePath,
     system.TemporaryDirectory 
   )
-
-  network.request(_u.makeUrl(o), options.method, networkListener, params)
 end
 
 return M
