@@ -456,4 +456,23 @@ function M.getKeyByValue(table, value)
     end
   end
 end
+
+-- 指定したfunction名があれば呼ぶ o.foo(...)
+function M.callIfExist(o, functionName, ...)
+  if o[functionName] then
+    return o[functionName](...)
+  end
+end
+
+-- 指定したfunction名があれば呼ぶ o:foo(...)
+function M.callMethodIfExist(o, functionName, ...)
+  if not o then
+    return
+  end
+  if o[functionName] then
+    return o[functionName](o, ...)
+  end
+end
+
+
 return M

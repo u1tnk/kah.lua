@@ -118,3 +118,18 @@ function testGetKeyByValue()
   assert_equal("tableValue", utils.getKeyByValue(testData, tableValue), "hash")
   assert_equal(nil, utils.getKeyByValue(testData, "hoge"), "not found")
 end
+
+function testCallIfExist()
+  local o = {}
+  o.foo = function() return 1 end
+  assert_equal(1, utils.callIfExist(o, "foo"))
+  assert_equal(nil, utils.callIfExist(o, "bar"))
+end
+
+function testCallIfExist()
+  local o = {}
+  o.fooValue = 1
+  function o:foo() return self.fooValue end
+  assert_equal(1, utils.callMethodIfExist(o, "foo"))
+  assert_equal(nil, utils.callMethodIfExist(o, "bar"))
+end
