@@ -8,8 +8,9 @@ local _app = nil
 
 function M.setApp(app)
   _app = app
-  _u = _app.u
-  _helper = _app.helper
+  if _app.helper then
+    _helper = _app.helper
+  end
 end
 
 M.requireBasePath = "views."
