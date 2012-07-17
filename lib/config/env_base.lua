@@ -1,4 +1,4 @@
-local LOGGER = require '..logger'
+local LOGGER = require '..logger.logger'
 
 local M = _u.newObject()
 

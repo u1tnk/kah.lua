@@ -1,4 +1,4 @@
-local _u = require 'utils'
+local _u = require '..utils'
 local M = _u.newObject()
 M.DEBUG = "debug"
 M.D = M.DEBUG

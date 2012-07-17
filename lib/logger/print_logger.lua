@@ -1,4 +1,4 @@
-local _u = require 'utils'
+local _u = require '..utils'
 local parent = require 'logger'
 local M = parent:new()
 
