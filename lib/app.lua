@@ -1,5 +1,4 @@
 local M = _u.newObject{
-  modules = {},
   sharedObjects = {},
   envPath = 'config.env',
   modelsRootPath = 'models.',
@@ -9,8 +8,8 @@ local M = _u.newObject{
 
 function M:require(key)
   -- 常に絶対パス
-  self.modules[key] = require("..." .. key)
-  return self.modules[key]
+  -- 上書きしたrequire.luaでキャッシュしているので何もしない
+  return require("..." .. key)
 end
 
 M.env = M:require(M.envPath)
