@@ -49,5 +49,11 @@ end
 function M:initialize()
 end
 
+function M:getLogger()
+  local logger = require 'kahlua.print_logger'
+  logger.level = self.env.log_level
+  return logger
+end
+
 
 return M
