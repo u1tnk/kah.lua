@@ -1,10 +1,10 @@
 local _u = require '..corona_utils'
-local _client = require '..http.corona_http_client'
 
 local M = _u.newObject{}
 
 -- appはrequire後にセットする 
 local _app = nil
+local _client = nil
 
 function M.setApp(app)
   _app = app
@@ -18,6 +18,7 @@ end
 -- DBから情報を取得、その後画像を取得する必要があるため、
 -- DBから取得後、loadChildrenメソッドがあれば実行、更にlazyLoadオブジェクトを取得した場合はqueueに突っ込み終了待ち…という処理です。
 function M.runLazyLoads(lazyLoads, onComplete, onUpdate)
+  assert(_app, "app is required, please call setApp")
   local queue = _u.clone(lazyLoads)
 
   local function getFinishedCount()

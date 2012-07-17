@@ -1,10 +1,10 @@
 local _u = require '..corona_utils'
-local _helper = require '..helper.corona_display_helper'
 
 local M = _u.newObject{}
 
 -- appはrequire後にセットする 
 local _app = nil
+local _helper = nil
 
 function M.setApp(app)
   _app = app
@@ -32,7 +32,7 @@ function M:newScene()
   return m
 end
 
-sceneStage = display.newGroup()
+local sceneStage = display.newGroup()
 function M.getSceneStage()
   return sceneStage
 end
