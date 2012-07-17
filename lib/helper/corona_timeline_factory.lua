@@ -1,5 +1,5 @@
-local parent = require 'object'
-local _u = require 'utils'
+local parent = require '..object'
+local _u = require '..utils'
 local M = parent:new()
 
 -- to

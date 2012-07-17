@@ -1,5 +1,5 @@
 local _u = require '..corona_utils'
-local _helper = require '..corona_display_helper'
+local _helper = require '..helper.corona_display_helper'
 
 local M = _u.newObject{}
 

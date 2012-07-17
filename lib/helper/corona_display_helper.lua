@@ -1,7 +1,7 @@
-local _u = require 'utils'
+local _u = require '..utils'
 local _tlf = require 'corona_timeline_factory'
 
-local parent = require 'object'
+local parent = require '..object'
 local M = parent:new{
   defaultFont = native.systemFont,
   defaultFontSize = 24,
