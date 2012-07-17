@@ -1,6 +1,17 @@
+local _u = require '..corona_utils'
+local _helper = require '..corona_display_helper'
+
 local M = _u.newObject{}
 
--- local _app = nil
+-- appはrequire後にセットする 
+local _app = nil
+
+function M.setApp(app)
+  _app = app
+  _u = _app.u
+  _helper = _app.helper
+end
+
 M.requireBasePath = "views."
 
 -- createするたびに新しいgroupが必要なため
@@ -30,12 +41,12 @@ M.DEFAULT_EFFECT_TIME = 500
 M.EFFECT_CROSS_FADE = _u.newObject()
 M.EFFECT_CROSS_FADE.time = M.DEFAULT_EFFECT_TIME
 function M.EFFECT_CROSS_FADE:run(currentScene, nextScene, onComplete)
-  _u.newTl().parallel(function() 
+  _helper.newTl().parallel(function() 
     local tls =  {}
     if currentScene then
-      table.insert(tls, _u.newTl().to(currentScene.group, {alpha = 0, time = self.time}))
+      table.insert(tls, _helper.newTl().to(currentScene.group, {alpha = 0, time = self.time}))
     end
-    table.insert(tls, _u.newTl().from(nextScene.group, {alpha = 0, time = self.time}))
+    table.insert(tls, _helper.newTl().from(nextScene.group, {alpha = 0, time = self.time}))
     return tls
   end)
   .call(function() onComplete() end)
@@ -45,6 +56,7 @@ M.DEFAULT_EFFECT = M.EFFECT_CROSS_FADE
 
 local currentScene 
 function M.go(name, options)
+  assert(_app, "app is required, please call setApp")
   local defaults = {
     effect = M.DEFAULT_EFFECT,
     params = {},

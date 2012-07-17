@@ -1,4 +1,5 @@
 local _u = require 'utils'
+local _tlf = require 'corona_timeline_factory'
 
 local parent = require 'object'
 local M = parent:new{
@@ -436,5 +437,8 @@ function M:newGridList(options)
   return group
 end
 
+function M:newTl()
+  return _tlf:newTl()
+end
 
 return M

@@ -1,4 +1,8 @@
+local _u = require '..corona_utils'
+local _client = require '..corona_http_client'
+
 local M = _u.newObject{}
+
 
 
 -- DBから情報を取得、その後画像を取得する必要があるため、
@@ -64,6 +68,7 @@ function M.runLazyLoads(lazyLoads, onComplete, onUpdate)
     lazyLoad.load(createLoadCallBack(lazyLoad))
   end
 end
+
 
 
 

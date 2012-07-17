@@ -51,4 +51,33 @@ function M:asyncDownload(options)
   )
 end
 
+function M:lazyRequest(requestParams)
+  local o = {}
+  o.key = requestParams.key
+  function o.load(onComplete) 
+    requestParams.onComplete = onComplete
+    self:asyncRequest(requestParams)
+  end
+  return o
+end
+
+function M:lazyDownload(requestParams)
+  local o = {}
+  function o.load(onComplete) 
+    requestParams.onComplete = onComplete
+    self:asyncDownload(requestParams)
+  end
+  return o
+end
+
+
+function M:lazyMock(requestParams)
+  local o = {}
+  o.key = requestParams.key
+  function o.load(onComplete) 
+    onComplete(requestParams.result)
+  end
+  return o
+end
+
 return M
