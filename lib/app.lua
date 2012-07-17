@@ -31,14 +31,6 @@ function M:requireCommonView(key)
   return self:require(M.viewsRootPath .. 'common.' .. key)
 end
 
-function M:requireGeneratedView(key)
-  return self:require(M.viewsRootPath .. 'generated.' .. key)
-end
-
-function M:requireScenarioLayout(key)
-  return self:require(M.viewsRootPath .. 'scenario_layout.' .. key)
-end
-
 function M:shared(key, value)
   if value then
     self.sharedObjects[key] = value
@@ -46,12 +38,12 @@ function M:shared(key, value)
   return self.sharedObjects[key]
 end
 
-function M:user(value)
-  return self:shared("user", value)
-end
-
-function M:userCards(value)
-  return self:shared("userCards", value)
+function M:createSharedAccesor(attributes)
+  for i, attribute in ipairs(attributes) do
+    self[attribute] = function(self, value)
+      return self:shared(attribute, value)
+    end
+  end
 end
 
 function M:initialize()
