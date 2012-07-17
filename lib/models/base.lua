@@ -1,5 +1,5 @@
 local _u = require '..corona_utils'
-local _client = require '..corona_http_client'
+local _client = require '..http.corona_http_client'
 
 local M = _u.newObject{}
 

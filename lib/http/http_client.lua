@@ -1,9 +1,9 @@
-local _u = require 'utils'
+local _u = require '..utils'
 local http = require 'socket.http'
 local ltn12 = require 'ltn12'
 
 
-local parent = require 'object'
+local parent = require '..object'
 local M = parent:new{
   headers = {},
   protocol = "http",

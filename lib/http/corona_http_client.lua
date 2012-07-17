@@ -1,4 +1,4 @@
-local _u = require 'utils'
+local _u = require '..utils'
 
 local parent = require 'http_client'
 local M = parent:new{
