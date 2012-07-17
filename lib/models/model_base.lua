@@ -3,6 +3,16 @@ local _client = require '..http.corona_http_client'
 
 local M = _u.newObject{}
 
+-- appはrequire後にセットする 
+local _app = nil
+
+function M.setApp(app)
+  _app = app
+  if _app.client then
+    _client = _app.client
+  end
+end
+
 
 
 -- DBから情報を取得、その後画像を取得する必要があるため、
