@@ -6,7 +6,7 @@ local M = _u.newObject{}
 local _app = nil
 local _helper = nil
 
-function M.setApp(app)
+function M:setApp(app)
   _app = app
   if _app.helper then
     _helper = _app.helper
@@ -32,9 +32,9 @@ function M:newScene()
   return m
 end
 
-local sceneStage = display.newGroup()
-function M.getSceneStage()
-  return sceneStage
+M.sceneStage = display.newGroup()
+function M:getSceneStage()
+  return self.sceneStage
 end
 
 M.DEFAULT_EFFECT_TIME = 500
@@ -56,7 +56,7 @@ end
 M.DEFAULT_EFFECT = M.EFFECT_CROSS_FADE
 
 local currentScene 
-function M.go(name, options)
+function M:go(name, options)
   assert(_app, "app is required, please call setApp")
   local defaults = {
     effect = M.DEFAULT_EFFECT,
@@ -74,7 +74,7 @@ function M.go(name, options)
   end
 
   local nextScene = _app:requireView(name):newScene()
-  M.getSceneStage():insert(nextScene.group)
+  self:getSceneStage():insert(nextScene.group)
 
 
   local function afterLoad(loaded)
