@@ -55,8 +55,6 @@ function M:go(name, options)
   p(name, "goto scene!")
 
   local nextScene = _app:requireScene(name):newView()
-  p(_app:requireScene(name).layout, "nesssss")
-  p(nextScene.layout, "nesssss")
   self:getSceneStage():insert(nextScene.group)
 
 

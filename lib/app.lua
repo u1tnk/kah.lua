@@ -27,8 +27,8 @@ function M:requireScene(key)
   return self:require(M.viewsRootPath .. key)
 end
 
-function M:requireCommonView(key)
-  return self:require(M.viewsRootPath .. 'common.' .. key)
+function M:requireParts(key)
+  return self:require(M.viewsRootPath .. 'parts.' .. key)
 end
 
 function M:requireLayout(key)
