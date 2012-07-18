@@ -474,5 +474,4 @@ function M.callMethodIfExist(o, functionName, ...)
   end
 end
 
-
 return M

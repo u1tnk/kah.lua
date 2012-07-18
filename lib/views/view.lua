@@ -1,4 +1,5 @@
 local _u = require '..corona_utils'
+local L = {}
 
 local M = _u.newObject{}
 
@@ -61,49 +62,52 @@ function M:go(name, options)
   local function afterLoad(loaded)
     native.setActivityIndicator(false)
 
+    L.execChildren(nextScene, "create", o.params or {}, loaded)
     nextScene:create(o.params or {}, loaded)
-    if M.currentScene then
-      _u.callMethodIfExist(M.currentScene, "exit")
+    if self.currentScene then
+      self.currentScene:exit()
+      L.execChildren(self.currentScene, "exit")
     end
 
     local nextLayout
-    if not M.currentLayout or M.currentScene.layout ~= nextScene.layout then
-      if M.currentLayout then
-        M.currentLayout:exit()
+    if not self.currentLayout or self.currentScene.layout ~= nextScene.layout then
+      if self.currentLayout then
+        self.currentLayout:exit()
+        L.execChildren(self.currentLayout, "exit")
       end
       nextLayout = _app:requireLayout(nextScene.layout or 'default'):newView()
       nextLayout:create()
+      L.execChildren(nextLayout, "create")
       nextLayout:layer(self:getSceneStage())
 
       -- layoutも同じエフェクト
-      o.effect:run(M.currentLayout, nextLayout, function()
-        if M.currentLayout then
-          M.currentLayout.destroy()
-          display.remove(M.currentLayout.group)
+      o.effect:run(self.currentLayout, nextLayout, function()
+        if self.currentLayout then
+          self.currentLayout.destroy()
+          L.execChildren(self.currentLayout, "destroy")
+          display.remove(self.currentLayout.group)
         end
-        M.currentLayout = nextLayout
+        self.currentLayout = nextLayout
         nextLayout = nil
       end)
     end
 
     -- TODO 遷移エフェクト
-    o.effect:run(M.currentScene, nextScene, function()
-      if M.currentScene then
-        M.currentScene:destroy()
-        display.remove(M.currentScene.group)
+    o.effect:run(self.currentScene, nextScene, function()
+      if self.currentScene then
+        self.currentScene:destroy()
+        L.execChildren(self.currentScene, "destroy")
+        display.remove(self.currentScene.group)
       end
+      L.execChildren(nextScene, "enter", o.params or {}, loaded)
       nextScene:enter(o.params or {}, loaded)
-      M.currentScene = nextScene
+      self.currentScene = nextScene
       nextScene = nil
     end)
 
-
   end
 
-  local lazyLoads 
-  if nextScene.load then
-    lazyLoads = nextScene:load(o.params)
-  end
+  local lazyLoads = nextScene:load(o.params)
 
   if _u.isNotEmpty(lazyLoads) then
     native.setActivityIndicator(true)
@@ -112,6 +116,21 @@ function M:go(name, options)
     afterLoad()
   end
   
+end
+
+function L.execChildren(o, method, ...)
+  if not o.childrenParts then
+    return
+  end
+  for key, childParts in pairs(o.childrenParts) do 
+    L.execChildren(childParts, method, ...)
+    local child = childParts:newView()
+    child[method](child, ...)
+    if method == 'create' then 
+      o.children[child.name] = child
+      o.group:insert(child.group)
+    end
+  end
 end
 
 return M
