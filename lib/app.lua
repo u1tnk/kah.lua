@@ -31,6 +31,10 @@ function M:requireCommonView(key)
   return self:require(M.viewsRootPath .. 'common.' .. key)
 end
 
+function M:requireLayout(key)
+  return self:require(M.viewsRootPath .. 'layout.' .. key)
+end
+
 function M:shared(key, value)
   if value then
     self.sharedObjects[key] = value

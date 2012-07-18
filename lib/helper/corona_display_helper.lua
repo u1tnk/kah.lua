@@ -294,14 +294,7 @@ function M.toFront(object)
   end
 end
 
-function M.alignFront(array)
-  for key, value in pairs(array) do
-    M.toFront(value)
-  end
-end
-
-
-function M.alignFront(array)
+function M.layer(array)
   for key, value in pairs(array) do
     M.toFront(value)
   end

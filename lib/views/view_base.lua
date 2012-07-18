@@ -55,7 +55,8 @@ function M.EFFECT_CROSS_FADE:run(currentScene, nextScene, onComplete)
 end
 M.DEFAULT_EFFECT = M.EFFECT_CROSS_FADE
 
-local currentScene 
+M.currentLayout = nil
+M.currentScene = nil
 function M:go(name, options)
   assert(_app, "app is required, please call setApp")
   local defaults = {
@@ -69,30 +70,53 @@ function M:go(name, options)
 
   _u.printMemoryStatus()
   p(name, "goto scene!")
-  if currentScene then
-    _u.callMethodIfExist(currentScene, "exit")
-  end
 
   local nextScene = _app:requireView(name):newScene()
   self:getSceneStage():insert(nextScene.group)
 
 
   local function afterLoad(loaded)
-    _u.callMethodIfExist(nextScene, "create", o.params or {}, loaded)
-
     native.setActivityIndicator(false)
-    -- TODO 遷移エフェクト
-    o.effect:run(currentScene, nextScene, function()
-      if currentScene then
-        _u.callMethodIfExist(currentScene, "destroy")
-        display.remove(currentScene.group)
+
+    nextScene:create(o.params or {}, loaded)
+    if M.currentScene then
+      _u.callMethodIfExist(M.currentScene, "exit")
+    end
+
+    local nextLayout
+    if not M.currentLayout or M.currentScene.layout ~= nextScene.layout then
+      if M.currentLayout then
+        M.currentLayout:exit()
       end
-      _u.callMethodIfExist(nextScene, "enter", o.params or {}, loaded)
-      currentScene = nextScene
+      nextLayout = _app:requireLayout(nextScene.layout or 'default'):newLayout()
+      nextLayout:create()
+      nextLayout:layer(self:getSceneStage())
+
+      -- layoutも同じエフェクト
+      o.effect:run(M.currentLayout, nextLayout, function()
+        if M.currentLayout then
+          M.currentLayout.destroy()
+          display.remove(M.currentLayout.group)
+        end
+        M.currentLayout = nextLayout
+        nextLayout = nil
+      end)
+    end
+
+    -- TODO 遷移エフェクト
+    o.effect:run(M.currentScene, nextScene, function()
+      if M.currentScene then
+        M.currentScene:destroy()
+        display.remove(M.currentScene.group)
+      end
+      nextScene:enter(o.params or {}, loaded)
+      M.currentScene = nextScene
       nextScene = nil
     end)
 
+
   end
+
   local lazyLoads 
   if nextScene.load then
     lazyLoads = nextScene:load(o.params)
@@ -105,6 +129,15 @@ function M:go(name, options)
     afterLoad()
   end
   
+end
+
+function M:create()
+end
+function M:enter()
+end
+function M:exit()
+end
+function M:destroy()
 end
     
 
