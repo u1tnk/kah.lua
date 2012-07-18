@@ -24,7 +24,7 @@ function M:requireModel(key)
 end
 
 function M:requireScene(key)
-  return self:require(M.viewsRootPath .. key)
+  return self:require(M.viewsRootPath .. 'scene.' .. key)
 end
 
 function M:requireParts(key)
