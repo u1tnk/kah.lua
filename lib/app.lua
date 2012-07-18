@@ -23,7 +23,7 @@ function M:requireModel(key)
   end
 end
 
-function M:requireView(key)
+function M:requireScene(key)
   return self:require(M.viewsRootPath .. key)
 end
 
