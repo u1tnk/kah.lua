@@ -16,7 +16,7 @@ require = function(path)
   end
   
   -- ...で始まるときは絶対パス
-  if string.find(path, "^[%.][%.][%.]") then
+  if string.find(path, "^[%.][%.][%.]") and not string.find(path, "^[%.][%.][%.][%.]")  then
     normalizedPath = string.sub(normalizedPath, 4)
   else
     -- path を正規化
@@ -67,7 +67,6 @@ do
     for i, v in ipairs(arr) do
       L._normalize(v)
     end
-    
     return table.concat(results, ".")
   end
 
@@ -75,6 +74,9 @@ do
   function L._normalize(path)
     local arr = L.split(path, "%.")
     table.remove(results)
+    if path == '' then
+      return
+    end
     for i, v in ipairs(arr) do
       table.insert(results, v)
     end
