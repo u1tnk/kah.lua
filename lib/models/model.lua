@@ -6,19 +6,10 @@ local M = _u.newObject{}
 local _app = nil
 local _client = nil
 
-function M:setApp(app)
-  _app = app
-  if _app.client then
-    _client = _app.client
-  end
-end
-
-
 
 -- DBから情報を取得、その後画像を取得する必要があるため、
 -- DBから取得後、loadChildrenメソッドがあれば実行、更にlazyLoadオブジェクトを取得した場合はqueueに突っ込み終了待ち…という処理です。
 function M:runLazyLoads(lazyLoads, onComplete, onUpdate)
-  assert(_app, "app is required, please call setApp")
   local queue = _u.clone(lazyLoads)
 
   local function getFinishedCount()
@@ -80,8 +71,12 @@ function M:runLazyLoads(lazyLoads, onComplete, onUpdate)
   end
 end
 
-
-
-
-return M
+-- appに依存してるので直接モジュールを返さない
+return function(app)
+  _app = app
+  if _app.client then
+    _client = _app.client
+  end
+  return M
+end
 

@@ -3,17 +3,8 @@ local L = {}
 
 local M = _u.newObject{}
 
--- TODO requireの引数でapp入れようぜ
--- appはrequire後にセットする 
 local _app = nil
 local _helper = nil
-
-function M:setApp(app)
-  _app = app
-  if _app.helper then
-    _helper = _app.helper
-  end
-end
 
 M.requireBasePath = "views."
 
@@ -132,5 +123,12 @@ function L.execChildren(o, method, ...)
   end
 end
 
-return M
+-- appに依存してるので直接モジュールを返さない
+return function(app)
+  _app = app
+  if _app.helper then
+    _helper = _app.helper
+  end
+  return M
+end
 
