@@ -3,6 +3,7 @@ local L = {}
 
 local M = _u.newObject{}
 
+-- TODO requireの引数でapp入れようぜ
 -- appはrequire後にセットする 
 local _app = nil
 local _helper = nil
@@ -48,9 +49,6 @@ function M:go(name, options)
     params = {},
   }
   local o = _u.setDefault(options, defaults)
-  -- 遷移する際にCleanUpしないとParticle Candy呼び出し時にエラーになる
-  -- TODO 使うページのexitでやって欲しい
-  Particles.CleanUp()
 
   _u.printMemoryStatus()
   p(name, "goto scene!")
@@ -60,6 +58,7 @@ function M:go(name, options)
 
 
   local function afterLoad(loaded)
+    -- TODO 設定可能にする
     native.setActivityIndicator(false)
 
     L.execChildren(nextScene, "create", o.params or {}, loaded)
@@ -76,8 +75,8 @@ function M:go(name, options)
         L.execChildren(self.currentLayout, "exit")
       end
       nextLayout = _app:requireLayout(nextScene.layout or 'default'):newView()
-      nextLayout:create()
       L.execChildren(nextLayout, "create")
+      nextLayout:create()
       nextLayout:layer(self:getSceneStage())
 
       -- layoutも同じエフェクト
@@ -88,7 +87,6 @@ function M:go(name, options)
           display.remove(self.currentLayout.group)
         end
         self.currentLayout = nextLayout
-        nextLayout = nil
       end)
     end
 
@@ -102,7 +100,6 @@ function M:go(name, options)
       L.execChildren(nextScene, "enter", o.params or {}, loaded)
       nextScene:enter(o.params or {}, loaded)
       self.currentScene = nextScene
-      nextScene = nil
     end)
 
   end
@@ -110,6 +107,7 @@ function M:go(name, options)
   local lazyLoads = nextScene:load(o.params)
 
   if _u.isNotEmpty(lazyLoads) then
+    -- TODO 設定可能にする
     native.setActivityIndicator(true)
     _model.runLazyLoads(lazyLoads, afterLoad)
   else
@@ -124,6 +122,7 @@ function L.execChildren(o, method, ...)
   end
   for key, childParts in pairs(o.childrenParts) do 
     L.execChildren(childParts, method, ...)
+    -- TODO newViewするのはcreateのみ
     local child = childParts:newView()
     child[method](child, ...)
     if method == 'create' then 

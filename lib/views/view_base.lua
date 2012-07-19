@@ -5,6 +5,7 @@ local M = _u.newObject{}
 
 
 -- createするたびに新しいgroupが必要なため
+-- TODO ここの返り値をgroup自体にしてみよう。
 function M:newView()
   local m = self:new()
   m.name = self.name
@@ -31,15 +32,18 @@ function M:addChild(child)
   table.insert(self.childrenParts, child:newView())
 end
 
+-- 生成、エフェクト前
 function M:create()
 end
+-- 生成、エフェクト後
 function M:enter()
 end
+-- 消去、エフェクト前
 function M:exit()
 end
+-- 消去、エフェクト後
 function M:destroy()
 end
-    
 
 return M
 
