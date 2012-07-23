@@ -1,5 +1,7 @@
-local parent = require 'view_base'
+local M = _u.newObject()
 
-local M = parent:new()
+function M:newParts(group, options)
+  return group
+end
 
 return M

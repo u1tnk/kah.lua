@@ -123,6 +123,11 @@ function L.execChildren(o, method, ...)
   end
 end
 
+function M:newParts(partsName, options)
+  local parts = _app:requireParts(partsName)
+  return parts:newParts(_helper:newGroup(), options)
+end
+
 -- appに依存してるので直接モジュールを返さない
 return function(app)
   _app = app
