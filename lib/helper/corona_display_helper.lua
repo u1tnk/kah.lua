@@ -130,6 +130,7 @@ end
 
 
 function M:newBorderText(options)
+  -- TODO borderText.text = 'hoge' で書き替わるようにする
   local defaults = {
     text = "",
     x = 0,
@@ -140,59 +141,67 @@ function M:newBorderText(options)
   }
   local o = _u.setDefault(options, defaults) 
   
-  local this = display.newGroup()
+  local group = _helper:newGroup()
 
   local size = o.size
   local color = o.color
   local border_color = o.border_color
-  local left = x - o.border_width
-  local right = x + o.border_width
-  local top = y - o.border_width
-  local bottom = y + o.border_width
+  local left = o.x - o.border_width
+  local right = o.x + o.border_width
+  local top = o.y - o.border_width
+  local bottom = o.y + o.border_width
+  local text = o.text
 
-  local borderText1 = newText(text,  left, y, {font=font, size=size} )
-  borderText1:setTextColor(_u.color(border_color))
+  local function newShadowText(shadowOptions)
+    local shadowText = self:newText(shadowOptions)
+    shadowText:setTextColor(_u.color(border_color))
+    return shadowText
+  end
 
-  local borderText2 = newText(text,  left, top, {font=font, size=size} )
-  borderText2:setTextColor(_u.color(border_color))
+  local tempOptions = _u.clone(o)
+  tempOptions.x = left
+  local shadowText1 = newShadowText(tempOptions)
 
-  local borderText3 = newText(text, x, top, {font=font, size=size} )
-  borderText3:setTextColor(_u.color(border_color))
+  tempOptions.y = top
+  local shadowText2 = newShadowText(tempOptions)
 
-  local borderText4 = newText(text, right, top, {font=font, size=size} )
-  borderText4:setTextColor(_u.color(border_color))
+  tempOptions.x = o.x
+  local shadowText3 = newShadowText(tempOptions)
 
-  local borderText5 = newText(text, right, y, {font=font, size=size} )
-  borderText5:setTextColor(_u.color(border_color))
+  tempOptions.x = right
+  local shadowText4 = newShadowText(tempOptions)
 
-  local borderText6 = newText(text, right, bottom, {font=font, size=size} )
-  borderText6:setTextColor(_u.color(border_color))
+  tempOptions.y = o.y
+  local shadowText5 = newShadowText(tempOptions)
 
-  local borderText7 = newText(text, x, bottom, {font=font, size=size} )
-  borderText7:setTextColor(_u.color(border_color))
+  tempOptions.y = bottom
+  local shadowText6 = newShadowText(tempOptions)
 
-  local borderText8 = newText(text, left, bottom, {font=font, size=size} )
-  borderText8:setTextColor(_u.color(border_color))
+  tempOptions.x = o.x
+  local shadowText7 = newShadowText(tempOptions)
 
-  local mainText = newText(text, x, y, {font=font, size=size} )
+  tempOptions.x = left
+  local shadowText8 = newShadowText(tempOptions)
+
+  local mainText = self:newText(o)
   mainText:setTextColor(_u.color(color))
 
-  this:insert(borderText1)
-  this:insert(borderText2)
-  this:insert(borderText3)
-  this:insert(borderText4)
-  this:insert(borderText5)
-  this:insert(borderText6)
-  this:insert(borderText7)
-  this:insert(borderText8)
-  this:insert(mainText)
+  group:insert(shadowText1)
+  group:insert(shadowText2)
+  group:insert(shadowText3)
+  group:insert(shadowText4)
+  group:insert(shadowText5)
+  group:insert(shadowText6)
+  group:insert(shadowText7)
+  group:insert(shadowText8)
+  group:insert(mainText)
 
-  this.x = x
-  this.y = y
+  group.x = o.x
+  group.y = o.y
 
-  self:newCommon(this, options)
+  self:newCommon(group, options)
 
-  return this
+  return group
 end
 
 function M:newImage(options)
@@ -328,6 +337,7 @@ function M:newGridList(options)
   group:insert(lists)
 
   local touchBlock = self:newRect{top = o.x, left = o.y, width = o.width, height = o.height, alpha = 0}
+  -- 透明でも判定がある
   touchBlock.isHitTestable = true
   group:insert(touchBlock)
 
