@@ -16,7 +16,7 @@ function M:rootUrl()
 end
 
 -- debug,info,warning,error
-M.log_level = LOGGER.DEBUG
+M.logLevel = LOGGER.DEBUG
 M.standAlone = true
 
 function M:isProduction()
