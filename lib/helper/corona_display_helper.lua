@@ -211,7 +211,7 @@ function M:newImage(options)
     width = 0,
     height = 0,
     path = nil,
-    baseDirectory = system.ResourceDirectory,
+    baseDirectory = system.CachesDirectory
   }
   local o = _u.setDefault(options, defaults) 
   assert(o.path, 'path is required')
