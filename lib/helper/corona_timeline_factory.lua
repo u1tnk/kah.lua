@@ -53,6 +53,11 @@ function M:newTl()
 
   tl.eachParallel = function(arr, fn) 
     table.insert(queue, function()
+      -- arrが関数の時はその呼出結果を引数とする
+      if _u.isFunction(arr) then
+        arr, fn = arr()
+      end
+
       local n
       local count = #arr
       n = function()
