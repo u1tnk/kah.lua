@@ -6,11 +6,34 @@ local M = parent:new{
   onError = function() _u.p("request success") end,
 }
 
+-- ロード数
+M.loadCount = 0
+-- ロードが終わった数
+M.completeLoadCount = 0
+
+-- ローディング中の数を初期化する
+function M:resetLoadCount()
+  self.loadCount = 0
+  self.completeLoadCount = 0
+end
+
+-- ローディング中の数を増やす
+function M:incrementLoadCount()
+  self.loadCount = self.loadCount + 1
+end
+
+-- 終了したローディングの数を増やす
+function M:incrementCompleteLoadCount()
+  self.completeLoadCount = self.completeLoadCount + 1
+end
+
 function M:asyncRequest(options)
   local o = self:setDefault(_u.setDefault(options, self))
+  self:incrementLoadCount()
 
   local networkListener
   networkListener = function(e)
+    self:incrementCompleteLoadCount()
 
     if e.status ~= 200 then
       _u.p(e, "request error")
@@ -27,9 +50,11 @@ function M:asyncRequest(options)
 end
 
 function M:asyncDownload(options)
+  self:incrementLoadCount()
   local o = M:setDefault(_u.setDefault(options, self))
 
   local function networkListener(e)
+    self:incrementCompleteLoadCount()
     if e.status ~= 200 then
       _u.p(e, "download error")
       o.onError()
