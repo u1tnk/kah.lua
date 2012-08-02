@@ -474,4 +474,11 @@ function M.callMethodIfExist(o, functionName, ...)
   end
 end
 
+-- オブジェクトとメソッドを受け取って、呼び出した時に関数をオブジェクトのメソッドとして呼び出す関数を返す
+function M.bind(object, method)
+  return function(...)
+    method(object, ...)
+  end
+end
+
 return M
