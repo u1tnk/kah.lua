@@ -155,6 +155,18 @@ function M:newTl()
     return tl
   end
 
+  tl.callMethod = function(obj, method)
+    table.insert(queue, function()
+      local fn = _u.bind(obj, method)
+      fn(next)
+      tl.cancel = function()
+        next = function() end
+      end
+    end)
+
+    return tl
+  end
+
   tl.run = function(_onComplete)
     index = 0
     onComplete = _onComplete
