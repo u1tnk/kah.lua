@@ -39,6 +39,8 @@ function M:runLazyLoads(lazyLoads, onComplete, onUpdate)
         local children = lazyLoad.loadChildren(result)
         for key, child in pairs(children) do
           if _u.isString(child) then
+
+
             local lazyDownload = _client:lazyDownload({path = child})
             lazyDownload.load(createLoadCallBack(lazyDownload))
             if _u.isNumber(key) then
@@ -46,6 +48,7 @@ function M:runLazyLoads(lazyLoads, onComplete, onUpdate)
             else
               queue[key] = lazyDownload
             end
+
           else
             child.load(callBack)
             if _u.isNumber(key) then
