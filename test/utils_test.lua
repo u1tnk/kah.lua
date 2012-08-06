@@ -133,3 +133,16 @@ function testCallIfExist()
   assert_equal(1, utils.callMethodIfExist(o, "foo"))
   assert_equal(nil, utils.callMethodIfExist(o, "bar"))
 end
+
+function testCamelize()
+  assert_equal("camelCase", utils.camelize("camel_case", "basic"))
+  assert_equal("camel", utils.camelize("camel", "変換無し"))
+end
+
+function testCamelizeKeys()
+  local o = {camel_case = { camel_case = 1}}
+  local actual = utils.camelizeKeys(o)
+  utils.p(actual)
+  assert_not_nil(actual.camelCase , 'key')
+  assert_not_nil(actual.camelCase.camelCase, 'nest')
+end
