@@ -431,7 +431,7 @@ function M.makeUrl(options)
     host = "localhost",
     port = 80,
     path = "",
-    queryParams = nil,
+    params = nil,
   }
   local o = M.setDefault(options, defaults)
   local url = {o.protocol, "://", o.host}
@@ -442,9 +442,9 @@ function M.makeUrl(options)
     url[#url + 1] = o.port
   end
   url[#url + 1] = o.path
-  if o.queryParams then
+  if o.params then
     url[#url + 1] = "?"
-    url[#url + 1] = _u.makeQuery(o.queryParams)
+    url[#url + 1] = _u.makeQuery(o.params)
   end
   return table.concat(url)
 end

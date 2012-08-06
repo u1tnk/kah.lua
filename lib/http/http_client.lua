@@ -13,7 +13,7 @@ local M = parent:new{
   path = "",
   body = nil,
   redirect = true,
-  queryParams = nil,
+  params = nil,
 }
 
 local L = {}
@@ -35,7 +35,7 @@ function M:setDefault(options, defaults)
     path = self.path,
     body = self.body,
     redirect = self.redirect,
-    queryParams = self.queryParams,
+    params = self.params,
   }
   local o = _u.setDefault(options, defaults) 
   local headers = _u.setDefault(options.headers, self.headers) 
