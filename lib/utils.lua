@@ -238,7 +238,7 @@ function M.color(h, format)
 end
 
 function M.setDefault(params, default)
-local result = M.clone(default)
+  local result = M.clone(default)
   if not params then
     return result
   end
