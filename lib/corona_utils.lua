@@ -1,4 +1,5 @@
 require 'sqlite3'
+local _tlf = require 'helper.corona_timeline_factory'
 
 local parent = require 'utils'
 local M = parent:new()
@@ -26,6 +27,10 @@ function M.printMemoryStatus()
 
     local textMem = system.getInfo( "textureMemoryUsed" ) / 1000000
     M.p(textMem, "textureMemoryUsed")
+end
+
+function M.newTl()
+  return _tlf:newTl()
 end
 
 return M
