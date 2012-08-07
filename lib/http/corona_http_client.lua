@@ -63,13 +63,22 @@ function M:asyncDownload(options)
   params.headers = o.headers
   params.body = o.body
 
+  local baseDirectory 
+  if o.baseDirectory then
+    baseDirectory = o.baseDirectory
+  else
+    baseDirectory = system.TemporaryDirectory
+  end
+
+  print("save path is ", o.savePath)
+
   network.download(
     _u.makeUrl(o),
     "GET",
     networkListener,
     params,
     o.savePath,
-    system.TemporaryDirectory 
+    baseDirectory
   )
 end
 
