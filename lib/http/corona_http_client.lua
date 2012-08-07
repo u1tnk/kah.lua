@@ -70,8 +70,6 @@ function M:asyncDownload(options)
     baseDirectory = system.TemporaryDirectory
   end
 
-  print("save path is ", o.savePath)
-
   network.download(
     _u.makeUrl(o),
     "GET",
