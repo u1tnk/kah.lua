@@ -100,7 +100,15 @@ function M:go(name, options)
   if _u.isNotEmpty(lazyLoads) then
     -- TODO 設定可能にする
     native.setActivityIndicator(true)
-    _model.runLazyLoads(lazyLoads, afterLoad)
+
+    _u.newTl()
+    .eachParallel(
+      lazyLoads, 
+      function(i, lazyLoad, next)
+        lazyLoad:load(next)
+      end
+    )
+    .run(afterLoad)
   else
     afterLoad()
   end

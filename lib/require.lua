@@ -107,9 +107,8 @@ function L.getBaseName(path)
   return string.reverse(path)
 end
 
--- http://symfoware.blog68.fc2.com/blog-entry-455.html を元に実装
+-- utilsにも同じものがあるが、requireできないためコピペ
 function L.split(str, delim)
-  -- Eliminate bad cases...
   if string.find(str, delim) == nil then
       return { str }
   end

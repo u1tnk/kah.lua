@@ -1,5 +1,4 @@
 local _u = require '..utils'
-local _tlf = require 'corona_timeline_factory'
 
 local parent = require '..object'
 local M = parent:new{
@@ -74,8 +73,10 @@ end
 
 function M:newText(options)
   local defaults = {
-    x = 0,
-    y = 0,
+    top = 0,
+    left = 0,
+    x = nil,
+    y = nil,
     color = "FFF",
     font = self.defaultFont,
     size = self.defaultFontSize,
@@ -87,10 +88,13 @@ function M:newText(options)
   local o = _u.setDefault(options, defaults) 
   local displayText
   if o.width > 0 and o.height > 0 then
-    displayText = display.newText(o.text, o.x, o.y, o.width, o.height, o.font, o.size )
+    displayText = display.newText(o.text, o.left, o.top, o.width, o.height, o.font, o.size )
   else
-    displayText = display.newText(o.text, o.x, o.y, o.font, o.size )
+    displayText = display.newText(o.text, o.left, o.top, o.font, o.size )
   end
+
+  _u.copyPropertyIfExist(o, displayText, {"x", "y"})
+
   displayText:setTextColor(_u.color(o.color))
 
   self:newCommon(displayText, options)
@@ -440,8 +444,5 @@ function M:newGridList(options)
   return group
 end
 
-function M:newTl()
-  return _tlf:newTl()
-end
 
 return M

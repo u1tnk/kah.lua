@@ -431,7 +431,7 @@ function M.makeUrl(options)
     host = "localhost",
     port = 80,
     path = "",
-    queryParams = nil,
+    params = nil,
   }
   local o = M.setDefault(options, defaults)
   local url = {o.protocol, "://", o.host}
@@ -442,9 +442,9 @@ function M.makeUrl(options)
     url[#url + 1] = o.port
   end
   url[#url + 1] = o.path
-  if o.queryParams then
+  if o.params then
     url[#url + 1] = "?"
-    url[#url + 1] = _u.makeQuery(o.queryParams)
+    url[#url + 1] = _u.makeQuery(o.params)
   end
   return table.concat(url)
 end
@@ -479,6 +479,50 @@ function M.bind(object, method)
   return function(...)
     method(object, ...)
   end
+end
+
+-- http://symfoware.blog68.fc2.com/blog-entry-455.html を元に実装
+function M.split(str, delim)
+  if string.find(str, delim) == nil then
+      return { str }
+  end
+
+  local result = {}
+  local pat = "(.-)" .. delim .. "()"
+  local lastPos
+  for part, pos in string.gfind(str, pat) do
+      table.insert(result, part)
+      lastPos = pos
+  end
+  table.insert(result, string.sub(str, lastPos))
+  return result
+end
+
+
+function M.camelize(str)
+  local parts = M.split(str, "_")
+  local temp = {}
+  for i, v in ipairs(parts) do
+    if i == 1 then
+      temp[i] = v
+    else
+      temp[i] = string.sub(v, 1, 1):upper() .. string.sub(v, 2)
+    end
+  end
+  return table.concat(temp)
+end
+
+function M.camelizeKeys(t)
+  local result = {}
+  for key, value in pairs(t) do
+    local camelizedKey = M.camelize(key)
+    if M.isTable(value) then
+      result[camelizedKey] = M.camelizeKeys(value)
+    else
+      result[camelizedKey] = value
+    end
+  end
+  return result
 end
 
 return M
