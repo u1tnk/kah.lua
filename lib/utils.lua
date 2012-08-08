@@ -515,12 +515,20 @@ end
 function M.camelizeKeys(t)
   local result = {}
   for key, value in pairs(t) do
-    local camelizedKey = M.camelize(key)
+
+    local camelizedKey
+    if M.isNumber(key) then
+      camelizedKey = key
+    else
+      camelizedKey = M.camelize(key)
+    end
+
     if M.isTable(value) then
       result[camelizedKey] = M.camelizeKeys(value)
     else
       result[camelizedKey] = value
     end
+
   end
   return result
 end
