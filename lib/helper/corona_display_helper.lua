@@ -285,6 +285,8 @@ function M:newVector(options)
     target = display.newCircle(o.x, o.y, o.radius); 
   elseif o.type == "roundedRect" then
     target = display.newRoundedRect(o.x, o.y, o.width, o.height, o.radius); 
+  elseif o.type == "rect" then
+    target = display.newRect(o.x, o.y, o.width, o.height); 
   end
   if o.fillColor then
     target:setFillColor(_u.color(o.fillColor))
@@ -318,6 +320,11 @@ function M:newRoundedRect(options)
   o.type = "roundedRect"
 
   return self:newVector(o)
+end
+
+function M:newRect(options)
+  options.type = "rect"
+  return self:newVector(options)
 end
 
 
