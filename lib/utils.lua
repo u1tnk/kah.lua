@@ -533,4 +533,13 @@ function M.camelizeKeys(t)
   return result
 end
 
+function M.existsValue(t, e)
+  for k, v in pairs(t) do
+    if v == e then
+      return true
+    end
+  end
+  return false
+end
+
 return M
