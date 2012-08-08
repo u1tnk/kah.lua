@@ -229,6 +229,27 @@ function M:newImage(options)
   return target
 end
 
+function M:newImageBySheet(options)
+  local defaults = {
+    sheet = nil,
+    index = nil,
+    x = 0,
+    y = 0,
+    width = 0,
+    height = 0,
+  }
+  local o = _u.setDefault(options, defaults) 
+  assert(o.sheet, 'sheet is required')
+  assert(o.index, 'frame index is required')
+
+  local target = display.newImageRect(o.sheet, o.index, o.width, o.height); 
+  target.x, target.y = o.x, o.y
+
+  self:newCommon(target, options)
+
+  return target
+end
+
 function M:newTextField(options)
   local defaults = {
     x = 0,
