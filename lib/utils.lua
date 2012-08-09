@@ -192,7 +192,7 @@ end
 
 function M.shuffle(array)
   math.randomseed(os.time())
-  local result = utils.clone(array)
+  local result = M.clone(array)
   local length = #array
   for i, v in ipairs(result) do
     if i == length then
@@ -208,6 +208,20 @@ function M.randomPosition(x, y, width, height)
   newX = x + math.random(-width, width)
   newY = y + math.random(-height, height)
   return newX, newY
+end
+
+-- 部分配列を返す、sizeと違い配列のみが対象
+function M.subArray(array, startIndex, endIndex)
+  if not endIndex then
+    endIndex = #array
+  end
+  local result = {}
+  for i, v in ipairs(array) do
+    if startIndex <= i and i <= endIndex then
+      table.insert(result, v)
+    end
+  end
+  return result
 end
 
 function calculateAlignLeft(group, obj)
