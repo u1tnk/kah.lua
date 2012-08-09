@@ -344,6 +344,32 @@ function M.extract(array, key)
   return result
 end
 
+-- 配列の中で指定したプロパティの値が一番大きいオブジェクトを返す
+function M.maxOfProperty(array, prop)
+  local max = nil
+  for _, v in ipairs(array) do
+    if max == nil then
+      max = v
+    elseif max[prop] < v[prop] then
+      max = v
+    end
+  end
+  return max
+end
+
+-- 配列の中で指定したプロパティの値が一番小さいオブジェクトを返す
+function M.minOfProperty(array, prop)
+  local min = nil
+  for _, v in ipairs(array) do
+    if min == nil then
+      min = v
+    elseif max[prop] > v[prop] then
+      min = v
+    end
+  end
+  return min
+end
+
 -- make query string for url
 function M.makeQuery(params)
   if params == nil or M.size(params) == 0 then
@@ -474,11 +500,31 @@ function M.callMethodIfExist(o, functionName, ...)
   end
 end
 
--- オブジェクトとメソッドを受け取って、呼び出した時に関数をオブジェクトのメソッドとして呼び出す関数を返す
-function M.bind(object, method)
+-- javascript の bind 関数と同様の処理を行う
+function M.bind(object, method, ...)
+  local args1 = {...}
+  print(args1)
   return function(...)
-    method(object, ...)
+    local args2 = {...}
+    local args = _u.arrayConcat(args1, args2)
+    method(object, unpack(args))
   end
+end
+
+-- 配列同士の連結を行う
+function M.arrayConcat(table1, table2)
+  local concatedArray = {}
+  if table1 ~= nil then
+    for _, value in ipairs(table1) do
+      table.insert(concatedArray, value)
+    end
+  end
+  if table2 ~= nil then
+    for _, value in ipairs(table2) do
+      table.insert(concatedArray, value)
+    end
+  end
+  return concatedArray
 end
 
 -- http://symfoware.blog68.fc2.com/blog-entry-455.html を元に実装
