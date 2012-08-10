@@ -102,37 +102,6 @@ function M:newText(options)
   return displayText
 end
 
-function M:newRect(options)
-  local defaults = {
-    parent = nil,
-    x = nil,
-    y = nil,
-    top = 0,
-    left = 0,
-    width = nil,
-    height = nil,
-    fillColor = "000",
-    strokeColor = nil,
-    alpha = nil,
-  }
-  local o = _u.setDefault(options, defaults) 
-  assert(o.width, "width is required")
-  assert(o.height, "height is required")
-
-  local target = display.newRect(o.top, o.left, o.width, o.height)
-  target:setFillColor(_u.color(o.fillColor))
-  if o.strokeColor then
-    target:setStrokeColor(_u.color(o.strokeColor))
-  end
-
-  _u.copyPropertyIfExist(o, target, {"x", "y", "alpha"})
-
-  self:newCommon(target, options)
-
-  return target
-end
-
-
 function M:newBorderText(options)
   -- TODO borderText.text = 'hoge' で書き替わるようにする
   local defaults = {
@@ -276,6 +245,7 @@ function M:newVector(options)
     type = nil,
     fillColor = nil,
     strokeColor = nil,
+    alpha = nil
   }
   local o = _u.setDefault(options, defaults) 
   assert(o.type, 'type is required')
@@ -294,6 +264,8 @@ function M:newVector(options)
   if o.strokeColor then
     target:setStrokeColor(_u.color(o.strokeColor))
   end
+
+  _u.copyPropertyIfExist(o, target, {"alpha"})
 
   self:newCommon(target, options)
 
@@ -359,6 +331,7 @@ function M:newGridList(options)
     parent = nil,
   }
   local o = _u.setDefault(options, defaults) 
+  assert(_u.isNotEmpty(o.elements), 'elements is required')
 
   local group = display.newGroup()
 
