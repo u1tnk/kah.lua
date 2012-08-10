@@ -10,13 +10,15 @@ local M = parent:new()
 -- loop
 -- times
 -- run
-function M:newTl()
+function M:newTl(options)
   local tl = {}
   local index
   local queue = {}
   local loop = false
   local times = 0
   local onComplete
+
+  options = options or {}
 
   local next
   next = function()
@@ -31,6 +33,9 @@ function M:newTl()
       times = times - 1
       next()
     else
+      if options.showIndicator then
+        native.setActivityIndicator(false)
+      end
       queue = {}
       if onComplete then
         onComplete()
@@ -168,20 +173,23 @@ function M:newTl()
   end
 
   tl.run = function(_onComplete)
+    if options.showIndicator then
+      native.setActivityIndicator(true)
+    end
     index = 0
     onComplete = _onComplete
     next()
   end
 
+  -- TODO パラメータで設定するようにしたほうがよさげ
   tl.loop = function() 
     loop = true
-    
     return tl
   end
 
+  -- TODO パラメータで設定するようにしたほうがよさげ
   tl.times = function(count)
     times = count
-
     return tl
   end
 
