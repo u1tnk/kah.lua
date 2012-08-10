@@ -90,7 +90,6 @@ function M:go(name, options)
       nextScene:enter(o.params or {}, loaded)
       self.currentScene = nextScene
     end)
-
   end
 
   -- シーンに定義されたasyncメソッドを呼び出す
