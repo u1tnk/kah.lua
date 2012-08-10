@@ -49,8 +49,6 @@ function M:go(name, options)
 
 
   local function afterLoad(loaded)
-    -- TODO 設定可能にする
-    native.setActivityIndicator(false)
 
     L.execChildren(nextScene, "create", o.params or {}, loaded)
     nextScene:create(o.params or {}, loaded)
@@ -92,26 +90,14 @@ function M:go(name, options)
       nextScene:enter(o.params or {}, loaded)
       self.currentScene = nextScene
     end)
-
   end
 
-  local lazyLoads = nextScene:load(o.params)
-
-  if _u.isNotEmpty(lazyLoads) then
-    -- TODO 設定可能にする
-    native.setActivityIndicator(true)
-
-    _u.newTl()
-    .eachParallel(
-      lazyLoads, 
-      function(i, lazyLoad, next)
-        lazyLoad:load(next)
-      end
-    )
-    .run(afterLoad)
-  else
-    afterLoad()
-  end
+  -- シーンに定義されたasyncメソッドを呼び出す
+  _u.newTl({showIndicator = true})
+  .call(function(next)
+      nextScene:async(o.params, next)
+    end)
+  .run(afterLoad)
   
 end
 
