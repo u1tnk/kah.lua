@@ -630,7 +630,7 @@ function M.makeHandler(fn)
   return function(...)
     -- actioning == true の場合はボタンを押しても反応しない
     if actioning then
-      return
+      return true
     end
     actioning = true
     fn(..., function()
