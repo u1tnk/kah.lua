@@ -621,4 +621,25 @@ function M.existsValue(t, e)
   return false
 end
 
+-- イベントハンドラ生成用関数
+-- 二度押し防止機能
+-- キャプチャリング防止機能
+function M.makeHandler(fn)
+  -- ２度押し用フラグ
+  local actioning = false
+  return function(...)
+    -- actioning == true の場合はボタンを押しても反応しない
+    if actioning then
+      return
+    end
+    actioning = true
+    fn(..., function()
+      actioning = false
+    end)
+    
+    -- キャプチャリング防止
+    return true
+  end
+end
+
 return M
