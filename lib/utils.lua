@@ -621,4 +621,8 @@ function M.existsValue(t, e)
   return false
 end
 
+function M.propertyRequired(o, name)
+  assert(o[name], name .. ' is required')
+end
+
 return M
