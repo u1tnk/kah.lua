@@ -245,6 +245,7 @@ function M:newVector(options)
     type = nil,
     fillColor = nil,
     strokeColor = nil,
+    strokeWidth = nil,
     alpha = nil
   }
   local o = _u.setDefault(options, defaults) 
@@ -265,7 +266,7 @@ function M:newVector(options)
     target:setStrokeColor(_u.color(o.strokeColor))
   end
 
-  _u.copyPropertyIfExist(o, target, {"alpha"})
+  _u.copyPropertyIfExist(o, target, {"alpha", "strokeWidth"})
 
   self:newCommon(target, options)
 
