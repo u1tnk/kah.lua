@@ -257,7 +257,8 @@ function M:newVector(options)
   elseif o.type == "roundedRect" then
     target = display.newRoundedRect(o.x, o.y, o.width, o.height, o.radius); 
   elseif o.type == "rect" then
-    target = display.newRect(o.x, o.y, o.width, o.height); 
+    target = display.newRect(0, 0, o.width, o.height); 
+    target.x, target.y = o.x, o.y
   end
   if o.fillColor then
     target:setFillColor(_u.color(o.fillColor))
