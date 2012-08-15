@@ -50,7 +50,6 @@ function M:newCommon(target, options)
   end
 
   return target
-
 end
 
 -- target(displayObject), x, y, reference(referencePoint)の配列を渡す
@@ -300,8 +299,6 @@ function M:newRect(options)
   options.type = "rect"
   return self:newVector(options)
 end
-
-
 
 function M.toFront(object)
   if object and _u.size(object) > 0 then
