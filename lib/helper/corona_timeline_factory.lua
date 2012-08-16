@@ -57,26 +57,27 @@ function M:newTl(options)
   tl.cancel = function() next = function() end end
 
   tl.eachParallel = function(arr, fn) 
-    table.insert(queue, function()
-      -- arrが関数の時はその呼出結果を引数とする
-      if _u.isFunction(arr) then
-        arr, fn = arr()
-      end
-
-      local n
-      local count = #arr
-      n = function()
-        count = count -1
-        if count == 0 then
-          count = #arr
-          next()
+    if _u.isNotEmpty(arr) then
+      table.insert(queue, function()
+        -- arrが関数の時はその呼出結果を引数とする
+        if _u.isFunction(arr) then
+          arr, fn = arr()
         end
-      end
-      for i, v in ipairs(arr) do
-        fn(i, v, n)
-      end
-    end)
-    
+
+        local n
+        local count = #arr
+        n = function()
+          count = count -1
+          if count == 0 then
+            count = #arr
+            next()
+          end
+        end
+        for i, v in ipairs(arr) do
+          fn(i, v, n)
+        end
+      end)
+    end
     return tl
   end
 
