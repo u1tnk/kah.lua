@@ -14,6 +14,9 @@ end
 
 -- ローディング中の数を増やす
 function M:incrementLoadCount()
+  if not self.loadCount then
+    self:resetLoadCount()
+  end
   self.loadCount = self.loadCount + 1
 end
 
