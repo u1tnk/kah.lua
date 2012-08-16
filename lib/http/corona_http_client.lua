@@ -67,7 +67,7 @@ function M:asyncDownload(options)
   if o.baseDirectory then
     baseDirectory = o.baseDirectory
   else
-    baseDirectory = system.TemporaryDirectory
+    baseDirectory = system.CachesDirectory
   end
 
   network.download(
