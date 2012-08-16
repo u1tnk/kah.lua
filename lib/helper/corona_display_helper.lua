@@ -440,6 +440,10 @@ function M:newGridList(options)
   end
 
   self:newCommon(group, options)
+
+  function group:addTapEventListener(listener)
+    o.onTap = listener
+  end
   
   return group
 end
