@@ -29,6 +29,24 @@ function M.EFFECT_CROSS_FADE:run(currentScene, nextScene, onComplete)
   .call(function() onComplete() end)
   .run()
 end
+
+M.RIGHT_TO_LEFT = _u.newObject()
+function M.RIGHT_TO_LEFT:run(currentScene, nextScene, onComplete)
+  local time = 150
+  if currentScene then
+    nextScene.group.x = 960 
+    _helper.newTl()
+    .to(currentScene.group, {x = -640, time = time})
+    .delay(200)
+    .to(nextScene.group, {x = 0, time = time})
+    .run(onComplete)
+  else
+    _helper.newTl()
+    .from(nextScene.group, {x = 640, time = time})
+    .run(onComplete)
+  end
+end
+
 M.DEFAULT_EFFECT = M.EFFECT_CROSS_FADE
 
 M.currentLayout = nil
@@ -46,7 +64,6 @@ function M:go(name, options)
 
   local nextScene = _app:requireScene(name):newView()
   self:getSceneStage():insert(nextScene.group)
-
 
   local function afterLoad(loaded)
 
