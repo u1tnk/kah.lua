@@ -32,7 +32,7 @@ end
 
 M.RIGHT_TO_LEFT = _u.newObject()
 function M.RIGHT_TO_LEFT:run(currentScene, nextScene, onComplete)
-  local time = 200
+  local time = 150
   if currentScene then
     nextScene.group.x = 960 
     _helper.newTl()
@@ -42,7 +42,7 @@ function M.RIGHT_TO_LEFT:run(currentScene, nextScene, onComplete)
     .run(onComplete)
   else
     _helper.newTl()
-    .from(nextScene.group, {x = 960, time = time})
+    .from(nextScene.group, {x = 640, time = time})
     .run(onComplete)
   end
 end
