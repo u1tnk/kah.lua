@@ -445,6 +445,10 @@ function M:newGridList(options)
     o.onTap = listener
   end
   
+  function group:addLongTapEventListener(listener)
+    o.onLongTap = listener
+  end
+
   return group
 end
 
