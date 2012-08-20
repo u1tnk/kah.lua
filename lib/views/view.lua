@@ -143,6 +143,9 @@ function M:disableTouch()
   M.touchGuard = _helper:newRect{x = CX, y = CY, width = W, height = H}
   M.touchGuard.isVisible = false
   M.touchGuard.isHitTestable = true
+  M.touchGuard:addEventListener("tap", function() 
+    return true;
+  end)
   M.touchGuard:addEventListener("touch", function() 
     return true;
   end)
