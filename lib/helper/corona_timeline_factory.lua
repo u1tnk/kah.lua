@@ -187,12 +187,14 @@ function M:newTl(options)
   -- TODO パラメータで設定するようにしたほうがよさげ
   tl.loop = function() 
     loop = true
+    tl.run()
     return tl
   end
 
   -- TODO パラメータで設定するようにしたほうがよさげ
   tl.times = function(count)
     times = count
+    tl.run()
     return tl
   end
 
