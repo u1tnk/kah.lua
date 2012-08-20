@@ -139,6 +139,20 @@ function M:newParts(partsName, options)
   return parts:newParts(_helper:newGroup(), options)
 end
 
+function M:disableTouch()
+  M.touchGuard = _helper:newRect{x = CX, y = CY, width = W, height = H}
+  M.touchGuard.isVisible = false
+  M.touchGuard.isHitTestable = true
+  M.touchGuard:addEventListener("touch", function() 
+    return true;
+  end)
+end
+
+function M:enableTouch()
+  display.remove(M.touchGuard)
+end
+
+
 -- appに依存してるので直接モジュールを返さない
 return function(app)
   _app = app
@@ -147,4 +161,3 @@ return function(app)
   end
   return M
 end
-
