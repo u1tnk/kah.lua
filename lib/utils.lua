@@ -624,10 +624,10 @@ end
 function M.propertyRequired(o, name)
   assert(o[name], name .. ' is required')
 end
--- イベントハンドラ生成用関数
+-- イベントリスナ生成用関数
 -- 二度押し防止機能
 -- キャプチャリング防止機能
-function M.makeHandler(fn)
+function M.makeListener(fn)
   -- ２度押し用フラグ
   local actioning = false
   return function(...)
