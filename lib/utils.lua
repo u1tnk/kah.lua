@@ -624,6 +624,7 @@ end
 function M.propertyRequired(o, name)
   assert(o[name], name .. ' is required')
 end
+
 -- イベントリスナ生成用関数
 -- 二度押し防止機能
 -- キャプチャリング防止機能
