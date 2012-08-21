@@ -26,8 +26,7 @@ function M.EFFECT_CROSS_FADE:run(currentScene, nextScene, onComplete)
     table.insert(tls, _helper.newTl().from(nextScene.group, {alpha = 0, time = self.time}))
     return tls
   end)
-  .call(function() onComplete() end)
-  .run()
+  .run(onComplete)
 end
 
 M.RIGHT_TO_LEFT = _u.newObject()
@@ -65,10 +64,13 @@ function M:go(name, options)
   local nextScene = _app:requireScene(name):newView()
   self:getSceneStage():insert(nextScene.group)
 
-  local function afterLoad(loaded)
+  local function afterLoad()
+    if nextScene.asyncError  then
+      return
+    end
 
-    L.execChildren(nextScene, "create", o.params or {}, loaded)
-    nextScene:create(o.params or {}, loaded)
+    L.execChildren(nextScene, "create", o.params or {})
+    nextScene:create(o.params or {})
     if self.currentScene then
       self.currentScene:exit()
       L.execChildren(self.currentScene, "exit")
@@ -103,8 +105,8 @@ function M:go(name, options)
         L.execChildren(self.currentScene, "destroy")
         display.remove(self.currentScene.group)
       end
-      L.execChildren(nextScene, "enter", o.params or {}, loaded)
-      nextScene:enter(o.params or {}, loaded)
+      L.execChildren(nextScene, "enter", o.params or {})
+      nextScene:enter(o.params or {})
       self.currentScene = nextScene
     end)
   end
@@ -140,19 +142,22 @@ function M:newParts(partsName, options)
 end
 
 function M:disableTouch()
-  M.touchGuard = _helper:newRect{x = CX, y = CY, width = W, height = H}
-  M.touchGuard.isVisible = false
-  M.touchGuard.isHitTestable = true
-  M.touchGuard:addEventListener("tap", function() 
+  self.touchGuard = _helper:newRect{x = CX, y = CY, width = W, height = H}
+  self.touchGuard.isVisible = false
+  self.touchGuard.isHitTestable = true
+  self.touchGuard:addEventListener("tap", function() 
     return true;
   end)
-  M.touchGuard:addEventListener("touch", function() 
+  self.touchGuard:addEventListener("touch", function() 
     return true;
   end)
 end
 
 function M:enableTouch()
-  display.remove(M.touchGuard)
+  if self.touchGuard then
+    display.remove(self.touchGuard)
+    self.touchGuard = nil
+  end
 end
 
 
