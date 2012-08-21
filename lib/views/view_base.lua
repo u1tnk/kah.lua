@@ -16,6 +16,10 @@ function M:newView()
   end
 
   function m:insertGroup(targets)
+    p('warn deprected! please use inserts')
+    self:inserts(targets)
+  end
+  function m:inserts(targets)
     _helper:insertGroup(self.group, targets)
   end
 
