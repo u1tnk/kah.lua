@@ -40,7 +40,7 @@ end
 function M:create()
 end
 -- 生成、エフェクト後
-function M:enter()
+function M:after_create()
 end
 -- 消去、エフェクト前
 function M:exit()

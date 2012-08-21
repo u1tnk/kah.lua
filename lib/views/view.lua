@@ -58,6 +58,8 @@ function M:go(name, options)
   }
   local o = _u.setDefault(options, defaults)
 
+  self:disableTouch()
+
   _u.printMemoryStatus()
   p(name, "goto scene!")
 
@@ -65,10 +67,6 @@ function M:go(name, options)
   self:getSceneStage():insert(nextScene.group)
 
   local function afterLoad()
-    if nextScene.asyncError  then
-      return
-    end
-
     L.execChildren(nextScene, "create", o.params or {})
     nextScene:create(o.params or {})
     if self.currentScene then
@@ -98,23 +96,21 @@ function M:go(name, options)
       end)
     end
 
-    -- TODO 遷移エフェクト
     o.effect:run(self.currentScene, nextScene, function()
       if self.currentScene then
         self.currentScene:destroy()
         L.execChildren(self.currentScene, "destroy")
         display.remove(self.currentScene.group)
       end
-      L.execChildren(nextScene, "enter", o.params or {})
-      nextScene:enter(o.params or {})
+      L.execChildren(nextScene, "after_create", o.params or {})
       self.currentScene = nextScene
+      nextScene:after_create(o.params or {}, function() self:enableTouch() end)
     end)
   end
 
-  -- シーンに定義されたasyncメソッドを呼び出す
   _u.newTl({showIndicator = true})
   .call(function(next)
-      nextScene:async(o.params, next)
+      nextScene:before_create(o.params, next)
     end)
   .run(afterLoad)
   
