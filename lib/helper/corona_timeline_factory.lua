@@ -90,6 +90,10 @@ function M:newTl(options)
     return tl
   end
 
+  tl.subTl = function(t)
+    return tl.parallel({t})
+  end
+
   tl.parallel = function(tls)
     table.insert(queue, function()
       if _u.isFunction(tls) then
