@@ -90,9 +90,11 @@ function M:newTl(options)
     return tl
   end
 
-  tl.parallel = function(getTimelines)
+  tl.parallel = function(tls)
     table.insert(queue, function()
-      local tls = getTimelines()
+      if _u.isFunction(tls) then
+        tls = tls()
+      end
       local n
       local count = #tls
       n = function()
