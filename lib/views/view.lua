@@ -137,15 +137,17 @@ function M:newParts(partsName, options)
 end
 
 function M:disableTouch()
-  self.touchGuard = _helper:newRect{x = CX, y = CY, width = W, height = H}
-  self.touchGuard.isVisible = false
-  self.touchGuard.isHitTestable = true
-  self.touchGuard:addEventListener("tap", function() 
-    return true;
-  end)
-  self.touchGuard:addEventListener("touch", function() 
-    return true;
-  end)
+  if not self.touchGuard then
+    self.touchGuard = _helper:newRect{x = CX, y = CY, width = W, height = H}
+    self.touchGuard.isVisible = false
+    self.touchGuard.isHitTestable = true
+    self.touchGuard:addEventListener("tap", function() 
+      return true;
+    end)
+    self.touchGuard:addEventListener("touch", function() 
+      return true;
+    end)
+  end
 end
 
 function M:enableTouch()
