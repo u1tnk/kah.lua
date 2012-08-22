@@ -26,8 +26,7 @@ function M.EFFECT_CROSS_FADE:run(currentScene, nextScene, onComplete)
     table.insert(tls, _helper.newTl().from(nextScene.group, {alpha = 0, time = self.time}))
     return tls
   end)
-  .call(function() onComplete() end)
-  .run()
+  .run(onComplete)
 end
 
 M.RIGHT_TO_LEFT = _u.newObject()
@@ -59,16 +58,17 @@ function M:go(name, options)
   }
   local o = _u.setDefault(options, defaults)
 
+  self:disableTouch()
+
   _u.printMemoryStatus()
   p(name, "goto scene!")
 
   local nextScene = _app:requireScene(name):newView()
   self:getSceneStage():insert(nextScene.group)
 
-  local function afterLoad(loaded)
-
-    L.execChildren(nextScene, "create", o.params or {}, loaded)
-    nextScene:create(o.params or {}, loaded)
+  local function afterLoad()
+    L.execChildren(nextScene, "create", o.params or {})
+    nextScene:create(o.params or {})
     if self.currentScene then
       self.currentScene:exit()
       L.execChildren(self.currentScene, "exit")
@@ -96,23 +96,21 @@ function M:go(name, options)
       end)
     end
 
-    -- TODO 遷移エフェクト
     o.effect:run(self.currentScene, nextScene, function()
       if self.currentScene then
         self.currentScene:destroy()
         L.execChildren(self.currentScene, "destroy")
         display.remove(self.currentScene.group)
       end
-      L.execChildren(nextScene, "enter", o.params or {}, loaded)
-      nextScene:enter(o.params or {}, loaded)
+      L.execChildren(nextScene, "after_create", o.params or {})
       self.currentScene = nextScene
+      nextScene:after_create(o.params or {}, function() self:enableTouch() end)
     end)
   end
 
-  -- シーンに定義されたasyncメソッドを呼び出す
   _u.newTl({showIndicator = true})
   .call(function(next)
-      nextScene:async(o.params, next)
+      nextScene:before_create(o.params, next)
     end)
   .run(afterLoad)
   
@@ -140,16 +138,22 @@ function M:newParts(partsName, options)
 end
 
 function M:disableTouch()
-  M.touchGuard = _helper:newRect{x = CX, y = CY, width = W, height = H}
-  M.touchGuard.isVisible = false
-  M.touchGuard.isHitTestable = true
-  M.touchGuard:addEventListener("touch", function() 
+  self.touchGuard = _helper:newRect{x = CX, y = CY, width = W, height = H}
+  self.touchGuard.isVisible = false
+  self.touchGuard.isHitTestable = true
+  self.touchGuard:addEventListener("tap", function() 
+    return true;
+  end)
+  self.touchGuard:addEventListener("touch", function() 
     return true;
   end)
 end
 
 function M:enableTouch()
-  display.remove(M.touchGuard)
+  if self.touchGuard then
+    display.remove(self.touchGuard)
+    self.touchGuard = nil
+  end
 end
 
 

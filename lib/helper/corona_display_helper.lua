@@ -32,9 +32,12 @@ function M:newGroup(options)
   self:newCommon(group, o)
 
   local helper = self
-  local insertGroup = self.insertGroup
+  local inserts = self.inserts
+  function group:inserts(targets)
+    inserts(helper, self, targets)
+  end
   function group:insertGroup(targets)
-    insertGroup(helper, self, targets)
+    self:inserts(targets)
   end
 
   return group
@@ -52,8 +55,11 @@ function M:newCommon(target, options)
   return target
 end
 
--- target(displayObject), x, y, reference(referencePoint)の配列を渡す
 function M:insertGroup(group, children)
+  self:inserts(group, children)
+end
+-- target(displayObject), x, y, reference(referencePoint)の配列を渡す
+function M:inserts(group, children)
   for i, child in ipairs(children) do
     if child.target then
       group:insert(child.target)
