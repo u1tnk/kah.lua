@@ -10,15 +10,22 @@ local M = parent:new()
 -- loop
 -- times
 -- run
+-- 通信エラーなどで処理中断したいときは
+-- nextを呼ばずにonErrorを呼ぶ。
+-- 残りのイベントはnewTlで生成したインスタンスがGCされるなら問題無いはず
 function M:newTl(options)
   local tl = {}
   local index
   local queue = {}
   local loop = false
   local times = 0
-  local onComplete
 
-  options = options or {}
+  local defaults = {
+    showIndicator = false,
+    onComplete = nil,
+    onError = nil,
+  }
+  local o = _u.setDefault(options, defaults) 
 
   local next
   next = function()
@@ -33,12 +40,12 @@ function M:newTl(options)
       times = times - 1
       next()
     else
-      if options.showIndicator then
+      if o.showIndicator then
         native.setActivityIndicator(false)
       end
       queue = {}
-      if onComplete then
-        onComplete()
+      if o.onComplete then
+        o.onComplete()
       end
     end
   end
@@ -74,7 +81,7 @@ function M:newTl(options)
             end
           end
           for i, v in ipairs(arr) do
-            fn(i, v, n)
+            fn(i, v, n, o.onError)
           end
         else
           next()
@@ -154,7 +161,7 @@ function M:newTl(options)
 
   tl.call = function(fn)
     table.insert(queue, function()
-      fn(next)
+      fn(next, o.onError)
       tl.cancel = function()
         next = function() end
       end
@@ -166,7 +173,7 @@ function M:newTl(options)
   tl.callMethod = function(obj, method)
     table.insert(queue, function()
       local fn = _u.bind(obj, method)
-      fn(next)
+      fn(next, o.onError)
       tl.cancel = function()
         next = function() end
       end
@@ -175,12 +182,17 @@ function M:newTl(options)
     return tl
   end
 
-  tl.run = function(_onComplete)
-    if options.showIndicator then
+  tl.run = function(options)
+    if _u.isFunction(options) then
+      o.onComplete = options
+    else 
+      o = _u.setDefault(options, o) 
+    end
+
+    if o.showIndicator then
       native.setActivityIndicator(true)
     end
     index = 0
-    onComplete = _onComplete
     next()
   end
 

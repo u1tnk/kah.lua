@@ -66,7 +66,11 @@ function M:go(name, options)
   local nextScene = _app:requireScene(name):newView()
   self:getSceneStage():insert(nextScene.group)
 
-  local function afterLoad()
+  local function onBeforeCreateFinish(isSuccess)
+    if not isSuccess then
+      self:enableTouch()
+      return
+    end
     L.execChildren(nextScene, "create", o.params or {})
     nextScene:create(o.params or {})
     if self.currentScene then
@@ -85,7 +89,7 @@ function M:go(name, options)
       nextLayout:create()
       nextLayout:layer(self:getSceneStage())
 
-      -- layoutも同じエフェクト
+      -- layoutと同じ時間で同じエフェクトすれば同じ時間に終わるはず…というイマイチな処理
       o.effect:run(self.currentLayout, nextLayout, function()
         if self.currentLayout then
           self.currentLayout.destroy()
@@ -102,18 +106,13 @@ function M:go(name, options)
         L.execChildren(self.currentScene, "destroy")
         display.remove(self.currentScene.group)
       end
-      L.execChildren(nextScene, "after_create", o.params or {})
+      L.execChildren(nextScene, "afterCreate", o.params or {})
       self.currentScene = nextScene
-      nextScene:after_create(o.params or {}, function() self:enableTouch() end)
+      nextScene:afterCreate(o.params or {}, function() self:enableTouch() end)
     end)
   end
 
-  _u.newTl({showIndicator = true})
-  .call(function(next)
-      nextScene:before_create(o.params, next)
-    end)
-  .run(afterLoad)
-  
+  nextScene:beforeCreate(o.params, onBeforeCreateFinish)
 end
 
 function L.execChildren(o, method, ...)
