@@ -58,35 +58,61 @@ function M:newTl(options)
     assert(target, "getParams function or target object is required")
   end
     
-
   -- 上書きされる前提
   -- cancelメソッドが設定される前にcancelが呼び出されても問題無いようにする
   tl.cancel = function() next = function() end end
 
-  tl.eachParallel = function(arr, fn) 
-      table.insert(queue, function()
-        -- arrが関数の時はその呼出結果を引数とする
-        if _u.isFunction(arr) then
-          arr, fn = arr()
-        end
+  tl.eachSerial = function(arr, fn)
+    table.insert(queue, function()
+      -- arrが関数の時はその呼出結果を引数とする
+      if _u.isFunction(arr) then
+        arr, fn = arr()
+      end
 
-        if _u.isNotEmpty(arr) then
-          local n
-          local count = #arr
-          n = function()
-            count = count -1
-            if count == 0 then
-              count = #arr
-              next()
-            end
+      if _u.isNotEmpty(arr) then
+        local n
+        local index = 1
+        local count = #arr
+        n = function()
+          index = index + 1
+          if count < index then
+            next()
+            return 
           end
-          for i, v in ipairs(arr) do
-            fn(i, v, n, o.onError)
-          end
-        else
-          next()
+          fn(index, arr[index], n, o.onError)
         end
-      end)
+        fn(index, arr[index], n, o.onError)
+      else
+        next()
+      end
+    end)
+    return tl
+  end
+
+  tl.eachParallel = function(arr, fn) 
+    table.insert(queue, function()
+      -- arrが関数の時はその呼出結果を引数とする
+      if _u.isFunction(arr) then
+        arr, fn = arr()
+      end
+
+      if _u.isNotEmpty(arr) then
+        local n
+        local count = #arr
+        n = function()
+          count = count -1
+          if count == 0 then
+            count = #arr
+            next()
+          end
+        end
+        for i, v in ipairs(arr) do
+          fn(i, v, n, o.onError)
+        end
+      else
+        next()
+      end
+    end)
     return tl
   end
 
