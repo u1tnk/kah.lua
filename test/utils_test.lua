@@ -146,3 +146,11 @@ function testCamelizeKeys()
   assert_not_nil(actual.camelCase , 'key')
   assert_not_nil(actual.camelCase.camelCase, 'nest')
 end
+
+function testSafetyNumber()
+  assert_equal(0, utils.safetyNumber(nil))
+  assert_equal(0, utils.safetyNumber(0))
+  assert_equal(1, utils.safetyNumber(1))
+  assert_equal(0, utils.safetyNumber('0'))
+  assert_equal(1, utils.safetyNumber('1'))
+end

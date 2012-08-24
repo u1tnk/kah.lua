@@ -646,4 +646,16 @@ function M.makeListener(fn)
   end
 end
 
+-- nilを0に変換する
+-- 数値以外を渡すとerror
+function M.safetyNumber(v)
+  if not v then
+    return 0
+  elseif M.isNumber(tonumber(v)) then
+    return tonumber(v)
+  else
+    assert(false, 'safetyNumberは数値かnilのみ受け付けます')
+  end
+end
+
 return M
