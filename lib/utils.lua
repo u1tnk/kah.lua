@@ -357,6 +357,18 @@ end
 
 -- ここまで
 
+function M.each(array, fn)
+  local results = {}
+  for index, value in ipairs(array) do
+    local result = fn(index, value)
+    if result ~= nil then
+      table.insert(results, result)
+    end
+  end
+  
+  return results
+end
+
 function M.sum(array)
   local result
   for i, v in ipairs(array) do
