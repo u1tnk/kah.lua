@@ -13,7 +13,6 @@ function M:require(key)
 end
 
 M.env = M:require(M.envPath)
-M.settings = M:require('lib.settings')
 
 function M:requireModel(key)
   if self.env.standAlone then

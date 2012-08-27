@@ -18,12 +18,12 @@ M.DEFAULT_EFFECT_TIME = 500
 M.EFFECT_CROSS_FADE = _u.newObject()
 M.EFFECT_CROSS_FADE.time = M.DEFAULT_EFFECT_TIME
 function M.EFFECT_CROSS_FADE:run(currentScene, nextScene, onComplete)
-  _helper.newTl().parallel(function() 
+  _u.newTl().parallel(function() 
     local tls =  {}
     if currentScene then
-      table.insert(tls, _helper.newTl().to(currentScene.group, {alpha = 0, time = self.time}))
+      table.insert(tls, _u.newTl().to(currentScene.group, {alpha = 0, time = self.time}))
     end
-    table.insert(tls, _helper.newTl().from(nextScene.group, {alpha = 0, time = self.time}))
+    table.insert(tls, _u.newTl().from(nextScene.group, {alpha = 0, time = self.time}))
     return tls
   end)
   .run(onComplete)
@@ -34,13 +34,13 @@ function M.RIGHT_TO_LEFT:run(currentScene, nextScene, onComplete)
   local time = 150
   if currentScene then
     nextScene.group.x = 960 
-    _helper.newTl()
+    _u.newTl()
     .to(currentScene.group, {x = -640, time = time})
     .delay(200)
     .to(nextScene.group, {x = 0, time = time})
     .run(onComplete)
   else
-    _helper.newTl()
+    _u.newTl()
     .from(nextScene.group, {x = 640, time = time})
     .run(onComplete)
   end
