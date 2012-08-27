@@ -36,7 +36,7 @@ function M:asyncRequest(options)
 
     if e.status ~= 200 then
       _u.p(e, "request error")
-      o.onError()
+      o.onError(e)
     else
       o.onComplete(e.response)
     end
