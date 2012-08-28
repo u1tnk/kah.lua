@@ -1,5 +1,5 @@
 --[[
--- 
+- 
 -- Tir(https://github.com/zedshaw/Tir)のutil.lua
 -- License: http://tir.mongrel2.org/wiki/license.html
 -- BSD License
@@ -214,11 +214,11 @@ function M.shuffle(array)
   local result = M.clone(array)
   local length = #array
   for i, v in ipairs(result) do
+    local a = math.random(1, i + 1)
+    result[i], result[a] = result[a], result[i]
     if i == length then
       return result
     end
-    local a = math.random(1, i + 1)
-    result[i], result[a] = result[a], result[i]
   end
 end
 
