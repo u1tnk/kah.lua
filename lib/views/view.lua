@@ -33,9 +33,9 @@ M.RIGHT_TO_LEFT = _u.newObject()
 function M.RIGHT_TO_LEFT:run(currentScene, nextScene, onComplete)
   local time = 150
   if currentScene then
-    nextScene.group.x = 960 
+    nextScene.group.x = 1440
     _u.newTl()
-    .to(currentScene.group, {x = -640, time = time})
+    .to(currentScene.group, {x = -960, time = time})
     .delay(200)
     .to(nextScene.group, {x = 0, time = time})
     .run(onComplete)
