@@ -44,10 +44,6 @@ function M:newGroup(options)
 end
 
 function M:newCommon(target, options)
-  local defaults = {
-    parent = nil,
-  }
-
   if options.parent then
     options.parent:insert(target)
   end
