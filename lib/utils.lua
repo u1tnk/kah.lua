@@ -369,6 +369,28 @@ function M.each(array, fn)
   return results
 end
 
+function M.every(array, fn)
+  for index, value in ipairs(array) do
+    local result = fn(index, value)
+    if result == false or result == nil then
+      return false
+    end
+  end
+
+  return true
+end
+
+function M.any(array, fn)
+  for index, value in ipairs(array) do
+    local result = fn(index, value)
+    if result  then
+      return true
+    end
+  end
+
+  return false
+end
+
 function M.sum(array)
   local result
   for i, v in ipairs(array) do
