@@ -25,7 +25,7 @@ function M:addHeader(name, value)
   self.headers[name] = value
 end
 
-function M:setDefault(options, defaults)
+function M:setDefault(options)
   local defaults = {
     headers = self.headers,
     protocol = self.protocol,
