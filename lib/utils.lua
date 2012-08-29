@@ -271,16 +271,21 @@ function M.color(h, format)
 end
 
 function M.setDefault(params, default)
-  local result = M.clone(default)
   if not params then
-    return result
+    return default or {}
   end
-  for k, v in pairs(params) do
-    result[k] = v
+  if not default then
+    return params
   end
-  return result
+  for k, v in pairs(default) do
+    if params[k] == nil then
+      params[k] = v
+    end
+  end
+  return params
 end
-extend = setDefault
+-- alias
+M.include = M.setDefault
 
 function M.size(table)
   local i = 0
