@@ -103,6 +103,13 @@ function M:newText(options)
   return displayText
 end
 
+function M:newRightAlignText(options)
+  local text = self:newText(options)
+  text:setReferencePoint(display.CenterRightReferencePoint)
+  text.x = options.right
+  return text
+end
+
 function M:newBorderText(options)
   -- TODO borderText.text = 'hoge' で書き替わるようにする
   local defaults = {
