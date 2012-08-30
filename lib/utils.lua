@@ -214,7 +214,7 @@ function M.shuffle(array)
   local result = M.clone(array)
   local length = #array
   for i, v in ipairs(result) do
-    local a = math.random(1, i + 1)
+    local a = math.random(1, i)
     result[i], result[a] = result[a], result[i]
     if i == length then
       return result
