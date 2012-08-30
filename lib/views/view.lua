@@ -67,6 +67,8 @@ function M:go(name, options)
   self:getSceneStage():insert(nextScene.group)
 
   local function onBeforeCreateFinish(isSuccess)
+    self:hideLoadingIndicator()
+
     if not isSuccess then
       self:enableTouch()
       return
@@ -112,7 +114,12 @@ function M:go(name, options)
     end)
   end
 
-  nextScene:beforeCreate(o.params, onBeforeCreateFinish)
+  if nextScene.beforeCreate then
+    self:showLoadingIndicator()
+    nextScene:beforeCreate(o.params, onBeforeCreateFinish)
+  else
+    onBeforeCreateFinish(true)
+  end
 end
 
 function L.execChildren(o, method, ...)
@@ -157,6 +164,13 @@ function M:enableTouch()
   end
 end
 
+-- abstract
+function M:showLoadingIndicator()
+end
+
+-- abstract
+function M:hideLoadingIndicator()
+end
 
 -- appに依存してるので直接モジュールを返さない
 return function(app)
