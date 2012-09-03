@@ -8,7 +8,11 @@ local _helper = nil
 
 M.requireBasePath = "views."
 
+local a = display.newGroup()
+local b = display.newGroup()
 M.sceneStage = display.newGroup()
+--a:insert(M.sceneStage)
+--a:insert(b)
 function M:getSceneStage()
   return self.sceneStage
 end
@@ -65,11 +69,13 @@ function M:go(name, options)
 
   local nextScene = _app:requireScene(name):newView()
   self:getSceneStage():insert(nextScene.group)
+  nextScene.group:toBack()
 
   local function onBeforeCreateFinish(isSuccess)
     self:hideLoadingIndicator()
 
     if not isSuccess then
+      print("no success")
       self:enableTouch()
       return
     end
@@ -87,11 +93,14 @@ function M:go(name, options)
         L.execChildren(self.currentLayout, "exit")
       end
       nextLayout = _app:requireLayout(nextScene.layout or 'default'):newView()
+      self:getSceneStage():insert(nextLayout.group)
+      nextLayout.group:toBack()
       L.execChildren(nextLayout, "create")
       nextLayout:create()
-      nextLayout:layer(self:getSceneStage())
+      nextLayout:layer(nextScene.group)
 
       -- layoutと同じ時間で同じエフェクトすれば同じ時間に終わるはず…というイマイチな処理
+      print("effect?")
       o.effect:run(self.currentLayout, nextLayout, function()
         if self.currentLayout then
           self.currentLayout.destroy()
@@ -102,6 +111,7 @@ function M:go(name, options)
       end)
     end
 
+    print("effect?")
     o.effect:run(self.currentScene, nextScene, function()
       if self.currentScene then
         self.currentScene:destroy()
@@ -123,18 +133,17 @@ function M:go(name, options)
 end
 
 function L.execChildren(o, method, ...)
-  if not o.childrenParts then
+  if not o.children then
     return
   end
-  for key, childParts in pairs(o.childrenParts) do 
-    L.execChildren(childParts, method, ...)
+  for index, child in ipairs(o.children) do
+    L.execChildren(child, method, ...)
     -- TODO newViewするのはcreateのみ
-    local child = childParts:newView()
-    child[method](child, ...)
-    if method == 'create' then 
-      o.children[child.name] = child
-      o.group:insert(child.group)
+    if method == 'create' then
+      o.children[index] = o.children[index]:newView()
+      o.group:insert(o.children[index].group)
     end
+    o.children[index][method](o.children[index], ...)
   end
 end
 
@@ -144,7 +153,10 @@ function M:newParts(partsName, options)
 end
 
 function M:disableTouch()
+  print("disable!")
   if not self.touchGuard then
+    print("disable!2")
+    
     self.touchGuard = _helper:newRect{x = CX, y = CY, width = W, height = H}
     self.touchGuard.isVisible = false
     self.touchGuard.isHitTestable = true
@@ -158,6 +170,7 @@ function M:disableTouch()
 end
 
 function M:enableTouch()
+  print("enable!")
   if self.touchGuard then
     display.remove(self.touchGuard)
     self.touchGuard = nil
