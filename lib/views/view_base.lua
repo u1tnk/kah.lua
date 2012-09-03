@@ -27,13 +27,10 @@ function M:newView()
 end
 
 function M:addChild(child)
-  if not self.childrenParts then
-    self.childrenParts = {}
-  end
   if not self.children then
     self.children = {}
   end
-  table.insert(self.childrenParts, child:newView())
+  table.insert(self.children, child)
 end
 
 -- 生成、エフェクト前

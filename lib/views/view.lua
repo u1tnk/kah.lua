@@ -123,18 +123,17 @@ function M:go(name, options)
 end
 
 function L.execChildren(o, method, ...)
-  if not o.childrenParts then
+  if not o.children then
     return
   end
-  for key, childParts in pairs(o.childrenParts) do 
-    L.execChildren(childParts, method, ...)
+  for index, child in ipairs(o.children) do
+    L.execChildren(child, method, ...)
     -- TODO newViewするのはcreateのみ
-    local child = childParts:newView()
-    child[method](child, ...)
-    if method == 'create' then 
-      o.children[child.name] = child
-      o.group:insert(child.group)
+    if method == 'create' then
+      o.children[index] = o.children[index]:newView()
+      o.group:insert(o.children[index].group)
     end
+    o.children[index][method](o.children[index], ...)
   end
 end
 
