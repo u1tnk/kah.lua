@@ -408,7 +408,7 @@ function M.sum(array)
   return result
 end
 
-function M.extract(array, key)
+function M.extract(key, array)
   local result = {}
   for i, v in ipairs(array) do
    table.insert(result, v[key]) 
