@@ -8,8 +8,10 @@ local _helper = nil
 
 M.requireBasePath = "views."
 
-M.sceneStage = display.newGroup()
 function M:getSceneStage()
+  if not self.sceneStage then
+    self.sceneStage = display.newGroup()
+  end
   return self.sceneStage
 end
 
@@ -64,7 +66,6 @@ function M:go(name, options)
   p(name, "goto scene!")
 
   local nextScene = _app:requireScene(name):newView()
-  self:getSceneStage():insert(nextScene.group)
 
   local function onBeforeCreateFinish(isSuccess)
     self:hideLoadingIndicator()
@@ -72,12 +73,6 @@ function M:go(name, options)
     if not isSuccess then
       self:enableTouch()
       return
-    end
-    L.execChildren(nextScene, "create", o.params or {})
-    nextScene:create(o.params or {})
-    if self.currentScene then
-      self.currentScene:exit()
-      L.execChildren(self.currentScene, "exit")
     end
 
     local nextLayout
@@ -89,7 +84,6 @@ function M:go(name, options)
       nextLayout = _app:requireLayout(nextScene.layout or 'default'):newView()
       L.execChildren(nextLayout, "create")
       nextLayout:create()
-      nextLayout:layer(self:getSceneStage())
 
       -- layoutと同じ時間で同じエフェクトすれば同じ時間に終わるはず…というイマイチな処理
       o.effect:run(self.currentLayout, nextLayout, function()
@@ -101,6 +95,19 @@ function M:go(name, options)
         self.currentLayout = nextLayout
       end)
     end
+    self:getSceneStage():insert(nextScene.group)
+
+    -- レイアウトが変わらなくてもシーンを表示順に並べなおす
+    nextLayout = nextLayout or self.currentLayout
+    nextLayout:layer(self:getSceneStage())
+
+    L.execChildren(nextScene, "create", o.params or {})
+    nextScene:create(o.params or {})
+    if self.currentScene then
+      self.currentScene:exit()
+      L.execChildren(self.currentScene, "exit")
+    end
+
 
     o.effect:run(self.currentScene, nextScene, function()
       if self.currentScene then
