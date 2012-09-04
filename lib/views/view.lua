@@ -144,7 +144,7 @@ function L.execChildren(o, method, ...)
       o.childrenView[index] = o.childrenView[key]
       index = index + 1
     end
-    o.childrenView[key][method](o.children[key], ...)
+    o.childrenView[key][method](o.childrenView[key], ...)
   end
 end
 
