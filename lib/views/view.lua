@@ -91,6 +91,7 @@ function M:go(name, options)
     end
     -- レイアウトが変わらなくてもシーンを表示順に並べなおす
     nextLayout = nextLayout or self.currentLayout
+    nextLayout.group:insert(nextScene.group)
     nextLayout:layer(nextScene.group)
 
     L.execChildren(nextScene, "create", o.params or {})
@@ -128,14 +129,18 @@ function L.execChildren(o, method, ...)
   if not o.children then
     return
   end
-  for index, child in ipairs(o.children) do
+  local index = 1
+  for key, child in pairs(o.children) do
     L.execChildren(child, method, ...)
     -- TODO newViewするのはcreateのみ
     if method == 'create' then
-      o.children[index] = o.children[index]:newView()
-      o.group:insert(o.children[index].group)
+      o.children[key] = o.children[key]:newView()
+      o.group:insert(o.children[key].group)
+      -- TODO 過去互換の為1,2..の方にも残す
+      o.children[index] = o.children[key]
+      index = index + 1
     end
-    o.children[index][method](o.children[index], ...)
+    o.children[key][method](o.children[key], ...)
   end
 end
 

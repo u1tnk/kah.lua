@@ -30,7 +30,7 @@ function M:addChild(child)
   if not self.children then
     self.children = {}
   end
-  table.insert(self.children, child)
+  self.children[child.name] = child 
 end
 
 -- 生成、エフェクト前
