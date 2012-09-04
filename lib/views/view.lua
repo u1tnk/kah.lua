@@ -143,18 +143,17 @@ function L.execChildren(o, method, ...)
   if method == 'create' then
     o.childrenView = {}
   end
-  local index = 1
-  for key, child in pairs(o.children) do
+  -- 元のchildrenには数字インデックス、key両方データ入ってるので
+  -- ipairsで数字のデータのみ参照して、createを実行する順番を保証している
+  for i, child in ipairs(o.children) do
     L.execChildren(child, method, ...)
-    -- TODO newViewするのはcreateのみ
     if method == 'create' then
-      o.childrenView[key] = o.children[key]:newView()
-      o.group:insert(o.childrenView[key].group)
-      -- TODO 過去互換の為1,2..の方にも残す
-      o.childrenView[index] = o.childrenView[key]
-      index = index + 1
+      o.childrenView[i] = o.children[i]:newView()
+      o.group:insert(o.childrenView[i].group)
+      -- nameで参照するためにaliasとして登録
+      o.childrenView[o.children[i].name] = o.childrenView[i]
     end
-    o.childrenView[key][method](o.childrenView[key], ...)
+    o.childrenView[i][method](o.childrenView[i], ...)
   end
 end
 
