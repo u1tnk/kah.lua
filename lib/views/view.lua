@@ -44,6 +44,8 @@ end
 function M:getLayoutContainer()
   if not self.layoutContainer then
     self.layoutContainer = _helper:newGroup()
+    -- 並列に居るtouch guardより常に後ろにいさせるため
+    self.layoutContainer:toBack()
   end
   return self.layoutContainer
 end
