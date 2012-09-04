@@ -41,6 +41,15 @@ function M.RIGHT_TO_LEFT:run(currentScene, nextScene, onComplete)
   end
 end
 
+function M:getLayoutContainer()
+  if not self.layoutContainer then
+    self.layoutContainer = _helper:newGroup()
+    -- 並列に居るtouch guardより常に後ろにいさせるため
+    self.layoutContainer:toBack()
+  end
+  return self.layoutContainer
+end
+
 M.DEFAULT_EFFECT = M.EFFECT_CROSS_FADE
 
 M.currentLayout = nil
@@ -78,6 +87,7 @@ function M:go(name, options)
       nextLayout = _app:requireLayout(nextScene.layout or 'default'):newView()
       L.execChildren(nextLayout, "create")
       nextLayout:create()
+      self:getLayoutContainer():insert(nextLayout.group)
 
       -- layoutと同じ時間で同じエフェクトすれば同じ時間に終わるはず…というイマイチな処理
       o.effect:run(self.currentLayout, nextLayout, function()
