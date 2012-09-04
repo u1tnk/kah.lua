@@ -8,13 +8,6 @@ local _helper = nil
 
 M.requireBasePath = "views."
 
-function M:getSceneStage()
-  if not self.sceneStage then
-    self.sceneStage = display.newGroup()
-  end
-  return self.sceneStage
-end
-
 M.DEFAULT_EFFECT_TIME = 500
 
 M.EFFECT_CROSS_FADE = _u.newObject()
@@ -75,8 +68,9 @@ function M:go(name, options)
       return
     end
 
+    local changeLayout = not self.currentLayout or self.currentScene.layout ~= nextScene.layout
     local nextLayout
-    if not self.currentLayout or self.currentScene.layout ~= nextScene.layout then
+    if changeLayout then
       if self.currentLayout then
         self.currentLayout:exit()
         L.execChildren(self.currentLayout, "exit")
@@ -95,11 +89,9 @@ function M:go(name, options)
         self.currentLayout = nextLayout
       end)
     end
-    self:getSceneStage():insert(nextScene.group)
-
     -- レイアウトが変わらなくてもシーンを表示順に並べなおす
     nextLayout = nextLayout or self.currentLayout
-    nextLayout:layer(self:getSceneStage())
+    nextLayout:layer(nextScene.group)
 
     L.execChildren(nextScene, "create", o.params or {})
     nextScene:create(o.params or {})
@@ -113,7 +105,10 @@ function M:go(name, options)
       if self.currentScene then
         self.currentScene:destroy()
         L.execChildren(self.currentScene, "destroy")
-        display.remove(self.currentScene.group)
+        -- layoutが変わるときはlayoutグループごとremoveされるので
+        if not changeLayout then
+          display.remove(self.currentScene.group)
+        end
       end
       L.execChildren(nextScene, "afterCreate", o.params or {})
       self.currentScene = nextScene
