@@ -129,18 +129,22 @@ function L.execChildren(o, method, ...)
   if not o.children then
     return
   end
+
+  if method == 'create' then
+    o.childrenView = {}
+  end
   local index = 1
   for key, child in pairs(o.children) do
     L.execChildren(child, method, ...)
     -- TODO newViewするのはcreateのみ
     if method == 'create' then
-      o.children[key] = o.children[key]:newView()
-      o.group:insert(o.children[key].group)
+      o.childrenView[key] = o.children[key]:newView()
+      o.group:insert(o.childrenView[key].group)
       -- TODO 過去互換の為1,2..の方にも残す
-      o.children[index] = o.children[key]
+      o.childrenView[index] = o.childrenView[key]
       index = index + 1
     end
-    o.children[key][method](o.children[key], ...)
+    o.childrenView[key][method](o.children[key], ...)
   end
 end
 
