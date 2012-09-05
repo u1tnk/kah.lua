@@ -48,6 +48,8 @@ function M:newCommon(target, options)
     options.parent:insert(target)
   end
 
+  _u.copyPropertyIfExist(options, target, {"alpha"})
+
   return target
 end
 
@@ -254,7 +256,6 @@ function M:newVector(options)
     fillColor = nil,
     strokeColor = nil,
     strokeWidth = nil,
-    alpha = nil
   }
   local o = _u.setDefault(options, defaults) 
   assert(o.type, 'type is required')
@@ -275,7 +276,7 @@ function M:newVector(options)
     target:setStrokeColor(_u.color(o.strokeColor))
   end
 
-  _u.copyPropertyIfExist(o, target, {"alpha", "strokeWidth"})
+  _u.copyPropertyIfExist(o, target, {"strokeWidth"})
 
   self:newCommon(target, options)
 
