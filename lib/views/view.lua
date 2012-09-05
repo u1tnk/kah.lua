@@ -121,7 +121,7 @@ function M:go(name, options)
           display.remove(self.currentScene.group)
         end
       end
-      L.execChildren(nextScene, "afterCreate", o.params or {})
+      L.execChildren(nextScene, "afterCreate", o.params or {}, function() end)
       self.currentScene = nextScene
       nextScene:afterCreate(o.params or {}, function() self:enableTouch() end)
     end)
