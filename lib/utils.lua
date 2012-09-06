@@ -7,8 +7,7 @@
 -- Underscore.lua(https://github.com/mirven/underscore.lua)
 -- MIT License
 --
--- 等から引用、付加している
--- 改変、付加している
+-- 等から引用、改変している
 --
 -- Example.
 -- _u = require 'utils'

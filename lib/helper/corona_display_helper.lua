@@ -50,6 +50,22 @@ function M:newCommon(target, options)
 
   _u.copyPropertyIfExist(options, target, {"alpha"})
 
+  function target:show()
+    target:setVisible(true)
+  end
+
+  function target:hide()
+    target:setVisible(false)
+  end
+
+  function target:setVisible(visible)
+    local alpha = 0
+    if visible then
+      alpha = 1
+    end
+    target.alpha = alpha
+  end
+
   return target
 end
 
@@ -466,5 +482,32 @@ function M:newGridList(options)
   return group
 end
 
+function M:setVisible(isVisible, target)
+  local alpha = 0
+  if isVisible then
+    alpha = 1
+  end
+  self:setPropertySmart(target, "alpha", alpha)
+end
+
+function M:show(target)
+  self:setVisible(true, target)
+end
+
+function M:hide(target)
+  self:setVisible(false, target)
+end
+
+-- 目的のpropertyが存在するかどうかで単数、複数を判定し、どちらでもpropertyを設定する
+-- 目的のpropertyがnilを許容する場合は使えないので注意
+function M:setPropertySmart(target, propertyName, value)
+  if target[propertyName] then
+    target[propertyName] = value
+  else
+    for i, v in ipairs(target) do
+      v[propertyName] = value
+    end
+  end
+end
 
 return M
