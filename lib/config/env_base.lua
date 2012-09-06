@@ -3,6 +3,7 @@ local LOGGER = require '..logger.logger'
 local M = _u.newObject()
 
 -- set parameter
+M.environment = "development" -- or staging, production
 
 -- simulatro or device
 M.target = "simulator"
@@ -20,9 +21,16 @@ M.logLevel = LOGGER.DEBUG
 M.standAlone = true
 
 function M:isProduction()
-  return self.name ==  LOGGER.PRODUCTION
+  return self.environment ==  "production"
 end
 
+function M:isStaging()
+  return self.environment ==  "staging"
+end
+
+function M:isDevelopment()
+  return self.environment ==  "development"
+end
 
 return M
 

@@ -540,7 +540,8 @@ function M.makeUrl(options)
     url[#url + 1] = o.port
   end
   url[#url + 1] = o.path
-  if o.params then
+  -- POSTの時はURLにパラメータを含めない
+  if o.params and o.method ~= "POST" then
     url[#url + 1] = "?"
     url[#url + 1] = _u.makeQuery(o.params)
   end
