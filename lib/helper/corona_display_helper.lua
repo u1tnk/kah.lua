@@ -50,6 +50,22 @@ function M:newCommon(target, options)
 
   _u.copyPropertyIfExist(options, target, {"alpha"})
 
+  function target:show()
+    target:setVisible(true)
+  end
+
+  function target:hide()
+    target:setVisible(false)
+  end
+
+  function target:setVisible(isVisible)
+    local alpha = 0
+    if isVisible then
+      alpha = 1
+    end
+    target.alpha = alpha
+  end
+
   return target
 end
 
@@ -466,5 +482,27 @@ function M:newGridList(options)
   return group
 end
 
+function M:setVisible(isVisible, targets)
+  local alpha = 0
+  if isVisible then
+    alpha = 1
+  end
+  self:setPropertyMulti(targets, "alpha", alpha)
+end
+
+function M:show(targets)
+  self:setVisible(true, targets)
+end
+
+function M:hide(targets)
+  self:setVisible(false, targets)
+end
+
+-- 一括設定
+function M:setPropertyMulti(targets, propertyName, value)
+  for i, v in ipairs(targets) do
+    v[propertyName] = value
+  end
+end
 
 return M
