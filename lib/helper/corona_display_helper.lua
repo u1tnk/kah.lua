@@ -482,31 +482,26 @@ function M:newGridList(options)
   return group
 end
 
-function M:setVisible(isVisible, target)
+function M:setVisible(isVisible, targets)
   local alpha = 0
   if isVisible then
     alpha = 1
   end
-  self:setPropertySmart(target, "alpha", alpha)
+  self:setPropertyMulti(targets, "alpha", alpha)
 end
 
-function M:show(target)
-  self:setVisible(true, target)
+function M:show(targets)
+  self:setVisible(true, targets)
 end
 
-function M:hide(target)
-  self:setVisible(false, target)
+function M:hide(targets)
+  self:setVisible(false, targets)
 end
 
--- 目的のpropertyが存在するかどうかで単数、複数を判定し、どちらでもpropertyを設定する
--- 目的のpropertyがnilを許容する場合は使えないので注意
-function M:setPropertySmart(target, propertyName, value)
-  if target[propertyName] then
-    target[propertyName] = value
-  else
-    for i, v in ipairs(target) do
-      v[propertyName] = value
-    end
+-- 一括設定
+function M:setPropertyMulti(targets, propertyName, value)
+  for i, v in ipairs(targets) do
+    v[propertyName] = value
   end
 end
 
