@@ -539,6 +539,7 @@ function M.makeUrl(options)
     url[#url + 1] = o.port
   end
   url[#url + 1] = o.path
+  -- TODO POST、PUTの時はURLにパラメータを含めないにする
   if o.params then
     url[#url + 1] = "?"
     url[#url + 1] = _u.makeQuery(o.params)
