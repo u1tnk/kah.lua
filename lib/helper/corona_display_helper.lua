@@ -58,9 +58,9 @@ function M:newCommon(target, options)
     target:setVisible(false)
   end
 
-  function target:setVisible(visible)
+  function target:setVisible(isVisible)
     local alpha = 0
-    if visible then
+    if isVisible then
       alpha = 1
     end
     target.alpha = alpha
