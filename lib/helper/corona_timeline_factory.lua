@@ -193,6 +193,25 @@ function M:newTl(options)
 
   tl.call = function(fn)
     table.insert(queue, function()
+      fn(o.onError)
+      next()
+    end)
+
+    return tl
+  end
+
+  tl.callMethod = function(obj, method)
+    table.insert(queue, function()
+      local fn = _u.bind(obj, method)
+      fn(o.onError)
+      next()
+    end)
+
+    return tl
+  end
+
+  tl.async = function(fn)
+    table.insert(queue, function()
       fn(next, o.onError)
       tl.cancel = function()
         next = function() end
@@ -202,7 +221,7 @@ function M:newTl(options)
     return tl
   end
 
-  tl.callMethod = function(obj, method)
+  tl.asyncMethod = function(obj, method)
     table.insert(queue, function()
       local fn = _u.bind(obj, method)
       fn(next, o.onError)
