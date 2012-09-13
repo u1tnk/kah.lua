@@ -256,6 +256,11 @@ function M.color(h, format)
     g = tonumber(hex:sub(3, 4), 16)
     b = tonumber(hex:sub(5, 6), 16)
     a = tonumber(hex:sub(7, 8), 16)
+  elseif hex:len() == 4 then
+    r = tonumber(hex:sub(1, 1) .. hex:sub(1, 1), 16)
+    g = tonumber(hex:sub(2, 2) .. hex:sub(2, 2), 16)
+    b = tonumber(hex:sub(3, 3) .. hex:sub(3, 3), 16)
+    a = tonumber(hex:sub(4, 4) .. hex:sub(4, 4), 16)
   elseif hex:len() == 3 then
     r = tonumber(hex:sub(1, 1) .. hex:sub(1, 1), 16)
     g = tonumber(hex:sub(2, 2) .. hex:sub(2, 2), 16)
