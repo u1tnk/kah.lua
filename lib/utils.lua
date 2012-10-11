@@ -242,10 +242,6 @@ function M.subArray(array, startIndex, endIndex)
   return result
 end
 
-function calculateAlignLeft(group, obj)
-  return (-1 * group.width / 2) + (obj.width / 2)
-end
-
 -- crawlspaceLibから
 function M.color(h, format)
   assert(h, "require color")
@@ -342,7 +338,9 @@ end
 --]]--
 
 function M.push(array, item)
-	table.insert(array, item)
+  if item then
+    table.insert(array, item)
+  end
 	return array
 end
 
@@ -360,6 +358,7 @@ function M.unshift(array, item)
 end
 
 -- ここまで
+M.add = M.push
 
 function M.each(array, fn)
   local results = {}
@@ -486,22 +485,35 @@ function M.isEmpty(o)
   end
 end
 
-function M.copyPropertyIfExist(from, to, property)
-  local properties 
-  if M.isTable(property) then
-    properties = property
+-- tableならそのまま、その他なら1要素のtableを作る
+function M.toTable(elements)
+  if M.isTable(elements) then
+    return elements
   else
-    properties = {}
-    table.insert(properties, property)
+    return {elements}
   end
+end
 
-  for i, p in ipairs(properties) do
-    local value = from[p]
-    if value then
-      to[p] = value
+function M.removeProperties(target, property)
+  for _, p in ipairs(M.toTable(property)) do
+    target[p] = nil
+  end
+  return target
+end
+
+function M.copyProperties(from, to, property)
+  for _, p in ipairs(M.toTable(property)) do
+    to[p] = from[p]
+  end
+  return to
+end
+
+function M.copyPropertiesIfExist(from, to, property)
+  for _, p in ipairs(M.toTable(property)) do
+    if from[p] then
+      to[p] = from[p]
     end
   end
-
   return to
 end
 
@@ -575,11 +587,24 @@ end
 -- javascript の bind 関数と同様の処理を行う
 function M.bind(object, method, ...)
   local args1 = {...}
-  print(args1)
   return function(...)
     local args2 = {...}
     local args = _u.arrayConcat(args1, args2)
-    method(object, unpack(args))
+    return method(object, unpack(args))
+  end
+end
+
+-- カリー化を行う
+-- 例
+-- function hoge(x, y) return x + y end
+-- 上記の関数に対してcurried = _u.curry(hoge, 10)とし
+-- curried(20)とすると30が返ってくる
+function M.curry(method, ...)
+  local args1 = {...}
+  return function(...)
+    local args2 = {...}
+    local args = _u.arrayConcat(args1, args2)
+    return method(unpack(args))
   end
 end
 
@@ -664,27 +689,6 @@ function M.propertyRequired(o, name)
   assert(o[name], name .. ' is required')
 end
 
--- イベントリスナ生成用関数
--- 二度押し防止機能
--- キャプチャリング防止機能
-function M.makeListener(fn)
-  -- ２度押し用フラグ
-  local actioning = false
-  return function(...)
-    -- actioning == true の場合はボタンを押しても反応しない
-    if actioning then
-      return true
-    end
-    actioning = true
-    fn(..., function()
-      actioning = false
-    end)
-    
-    -- キャプチャリング防止
-    return true
-  end
-end
-
 -- nilを0に変換する
 -- 数値以外を渡すとerror
 function M.safetyNumber(v)
@@ -695,6 +699,15 @@ function M.safetyNumber(v)
   else
     assert(false, 'safetyNumberは数値かnilのみ受け付けます')
   end
+end
+
+function M.positionToRotation(ax, ay, bx, by)
+  return math.deg(math.atan2(ay - by, ax - bx))
+end
+
+-- 現在時刻を取得する(単位: 秒)
+function M.getCurrentTime()
+  return os.time(os.date('*t'))
 end
 
 return M

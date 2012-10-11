@@ -33,4 +33,42 @@ function M.newTl()
   return _tlf:newTl()
 end
 
+function M.enterFrame(listener)
+ Runtime:addEventListener( "enterFrame", listener )
+end
+
+function M.removeFrame(listener)
+ Runtime:removeEventListener( "enterFrame", listener )
+end
+
+-- ブロックリスナを設定する
+function M.addBlockListener(obj)
+  if obj then
+    obj.isHitTestable = true 
+    obj:addEventListener("tap", function() return true end)
+    obj:addEventListener("touch", function() return true end)
+  end
+end
+
+-- イベントリスナ生成用関数
+-- 二度押し防止機能
+-- キャプチャリング防止機能
+function M.makeListener(fn)
+  -- ２度押し用フラグ
+  local actioning = false
+  return function(...)
+    -- actioning == true の場合はボタンを押しても反応しない
+    if actioning then
+      return true
+    end
+    actioning = true
+    fn(..., function()
+      actioning = false
+    end)
+    
+    -- キャプチャリング防止
+    return true
+  end
+end
+
 return M

@@ -68,6 +68,7 @@ function M:go(name, options)
   p(name, "goto scene!")
 
   local nextScene = _app:requireScene(name):newView()
+  nextScene.params = o.params
 
   local function onBeforeCreateFinish(isSuccess)
     self:hideLoadingIndicator()

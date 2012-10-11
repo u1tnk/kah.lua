@@ -1,6 +1,7 @@
 package.path = package.path .. ";../lib/?.lua"
 require "lunit"
 local utils = require 'utils'
+local p = utils.p
 
 module( "enhanced", package.seeall, lunit.testcase )
 
@@ -142,7 +143,6 @@ end
 function testCamelizeKeys()
   local o = {camel_case = { camel_case = 1}}
   local actual = utils.camelizeKeys(o)
-  utils.p(actual)
   assert_not_nil(actual.camelCase , 'key')
   assert_not_nil(actual.camelCase.camelCase, 'nest')
 end
@@ -153,4 +153,50 @@ function testSafetyNumber()
   assert_equal(1, utils.safetyNumber(1))
   assert_equal(0, utils.safetyNumber('0'))
   assert_equal(1, utils.safetyNumber('1'))
+end
+
+function testToTable()
+  assert_equal(1, utils.toTable(1)[1])
+  local emptyTable = {}
+  assert_equal(emptyTable, utils.toTable(emptyTable))
+  local table = {}
+  assert_equal(table, utils.toTable(table))
+end
+
+function testRemoveProperties()
+  local target = {a = 1, b = 2, c = 3}
+  utils.removeProperties(target, "a")
+  assert_equal(2, utils.size(target))
+  utils.removeProperties(target, {"b", "c"})
+  assert_equal(0, utils.size(target))
+end
+
+function testCopyProperties()
+  local from = {a = 1, b = 2, c = 3}
+  local to = {a = 2, b = 3, c = 4, d = 0}
+  utils.copyProperties(from, to, "a")
+  assert_equal(1, to.a)
+  assert_equal(3, to.b)
+
+  utils.copyProperties(from, to, {"b", "c"})
+  assert_equal(2, to.b)
+  assert_equal(3, to.c)
+
+  utils.copyProperties(from, to, "d")
+  assert_nil((to.d))
+end
+
+function testCopyPropertiesIfExist()
+  local from = {a = 1, b = 2, c = 3}
+  local to = {a = 2, b = 3, c = 4, d = 0}
+  utils.copyPropertiesIfExist(from, to, "a")
+  assert_equal(1, to.a)
+  assert_equal(3, to.b)
+
+  utils.copyPropertiesIfExist(from, to, {"b", "c"})
+  assert_equal(2, to.b)
+  assert_equal(3, to.c)
+
+  utils.copyPropertiesIfExist(from, to, "d")
+  assert_not_nil(to.d)
 end

@@ -27,7 +27,7 @@ function M:newGroup(options)
   }
   local o = _u.setDefault(options, defaults) 
   local group = display.newGroup()
-  _u.copyPropertyIfExist(o, group, {"x", "y"})
+  _u.copyPropertiesIfExist(o, group, {"x", "y"})
 
   self:newCommon(group, o)
 
@@ -48,7 +48,13 @@ function M:newCommon(target, options)
     options.parent:insert(target)
   end
 
-  _u.copyPropertyIfExist(options, target, {"alpha"})
+  _u.copyPropertiesIfExist(options, target, {"alpha", "xScale", "yScale", "rotation", "blendMode"})
+
+  if options.originX or options.originY then
+    target:setReferencePoint(self:resolveReferencePoint(options))
+    target.x = options.x
+    target.y = options.y
+  end
 
   function target:show()
     target:setVisible(true)
@@ -56,6 +62,11 @@ function M:newCommon(target, options)
 
   function target:hide()
     target:setVisible(false)
+  end
+
+  function target:setScale(scale)
+    target.xScale = scale
+    target.yScale = scale
   end
 
   function target:setVisible(isVisible)
@@ -79,11 +90,8 @@ function M:inserts(group, children)
       group:insert(child.target)
       if child.reference then
         child.target:setReferencePoint(child.reference)
-      else
-        -- groupで使うときはcenterが一番使いやすいので
-        child.target:setReferencePoint(display.CenterReferencePoint)
       end
-      _u.copyPropertyIfExist(child, child.target, {"x", "y"})
+      _u.copyPropertiesIfExist(child, child.target, {"x", "y"})
     else 
       group:insert(child)
     end
@@ -112,13 +120,42 @@ function M:newText(options)
     displayText = display.newText(o.text, o.left, o.top, o.font, o.size )
   end
 
-  _u.copyPropertyIfExist(o, displayText, {"x", "y"})
+  _u.copyPropertiesIfExist(o, displayText, {"x", "y"})
 
   displayText:setTextColor(_u.color(o.color))
 
   self:newCommon(displayText, options)
 
   return displayText
+end
+
+-- originX,originYからdisplay.CenterRightReferencePoint等に変換
+-- originX = CENTER,RIGHT,LEFT
+-- originY = CENTER,BOTTOM,TOP
+local REFERENCE_POINT_MAP = {
+  CENTER = {
+    LEFT   = display.CenterLeftReferencePoint,
+    CENTER = display.CenterReferencePoint,
+    RIGHT  = display.CenterRightReferencePoint,
+  },
+  TOP = {
+    LEFT   = display.TopLeftReferencePoint,
+    CENTER = display.TopCenterReferencePoint,
+    RIGHT  = display.TopRightReferencePoint,
+  },
+  BOTTOM = {
+    LEFT   = display.BottomLeftReferencePoint,
+    CENTER = display.BottomCenterReferencePoint,
+    RIGHT  = display.BottomRightReferencePoint,
+  },
+}
+
+function M:resolveReferencePoint(options)
+  local o = _u.setDefault(options, {
+    originX = "CENTER", 
+    originY = "CENTER", 
+  }) 
+  return REFERENCE_POINT_MAP[o.originY][o.originX]
 end
 
 function M:newRightAlignText(options)
@@ -203,6 +240,65 @@ function M:newBorderText(options)
   return group
 end
 
+function M:newTextWithLineHeight(options)
+  local defaults = {
+    top = 0,
+    left = 0,
+    x = nil,
+    y = nil,
+    text = "",
+    parent = nil,
+    lineHeight = 0,
+    align = "left"
+  }
+  local o = _u.setDefault(options, defaults) 
+
+  local lines = {}
+  for line in string.gmatch(o.text, "[^\n]+") do
+    table.insert(lines, line)
+  end
+
+  local group = display.newGroup()
+  local textTop = 0
+  for _, line in ipairs(lines) do
+    -- 一旦左寄せで作る
+    local t = _helper:newText{
+      parent = group,
+      text = line,
+      top = textTop,
+      left = 0,
+      color = o.color,
+      font = o.font,
+      size = o.size
+    }
+    textTop = textTop + t.height + o.lineHeight
+  end
+
+  -- align == "center" ならテキストを真ん中寄せにする
+  -- align == "right" は未実装
+  if o.align == "center" then
+    local groupWidth = group.width
+    for i = 1, group.numChildren do
+      group[i].x = groupWidth / 2
+    end
+  end
+
+  -- 位置設定
+  if o.x then
+    group.x = o.x - (group.width / 2)
+  else
+    group.x = o.left
+  end
+    
+  if o.y then
+    group.y = o.y - (group.height / 2)
+  else
+    group.y = o.top
+  end
+
+  self:newCommon(group, options)
+end
+
 function M:newImage(options)
   local defaults = {
     x = 0,
@@ -268,6 +364,8 @@ function M:newVector(options)
   local defaults = {
     x = 0,
     y = 0,
+    width = W,
+    height = H,
     type = nil,
     fillColor = nil,
     strokeColor = nil,
@@ -292,7 +390,7 @@ function M:newVector(options)
     target:setStrokeColor(_u.color(o.strokeColor))
   end
 
-  _u.copyPropertyIfExist(o, target, {"strokeWidth"})
+  _u.copyPropertiesIfExist(o, target, {"strokeWidth"})
 
   self:newCommon(target, options)
 
@@ -326,160 +424,16 @@ function M:newRect(options)
   return self:newVector(options)
 end
 
-function M.toFront(object)
+function M:toFront(object)
   if object and _u.size(object) > 0 then
     object:toFront()
   end
 end
 
-function M.layer(array)
+function M:layer(array)
   for key, value in pairs(array) do
-    M.toFront(value)
+    M:toFront(value)
   end
-end
-
-function M:newGridList(options)
-  local defaults = {
-    x = 0,
-    y = 0,
-    width = W,
-    height = H,
-    columns = 3,
-    rows = 3, -- これは表示上なのでこれ以上のデータも配置される
-    elements = nil,
-    tapArea = 30,
-    longTapTime = 500,
-    onTap = function() end,
-    onLongTap = function() end,
-    masked = true,
-    scrollable = true,
-    parent = nil,
-  }
-  local o = _u.setDefault(options, defaults) 
-  assert(_u.isNotEmpty(o.elements), 'elements is required')
-
-  local group = display.newGroup()
-
-  local xGridUnit = math.floor(o.width / o.columns)
-  local yGridUnit = math.floor(o.height / o.rows)
-
-  local lists = display.newGroup()
-  group:insert(lists)
-
-  local touchBlock = self:newRect{top = o.x, left = o.y, width = o.width, height = o.height, alpha = 0}
-  -- 透明でも判定がある
-  touchBlock.isHitTestable = true
-  group:insert(touchBlock)
-
-  local longTapTimer
-
-  for i, value in ipairs(o.elements) do
-    value:setReferencePoint(display.CenterReferencePoint)
-    local xPosition = (i - 1) % o.columns + 1
-    local yPosition = math.floor((i - 1) / o.columns) + 1
-    value.x = o.x + ((xPosition - 1) * xGridUnit) + (xGridUnit / 2)
-    value.y = o.y + ((yPosition - 1) * yGridUnit) + (yGridUnit / 2)
-
-    local touchListener = function(e)
-      if e.phase == "began" then
-        longTapTimer = timer.performWithDelay(o.longTapTime, function()
-          o.onLongTap(value)
-        end)
-      else
-        if longTapTimer then
-          timer.cancel(longTapTimer)
-        end
-      end
-
-      if e.phase == "ended" then
-        if math.abs(e.xStart - e.x) < o.tapArea and math.abs(e.yStart - e.y) < o.tapArea  then
-          o.onTap(value)
-        end
-      end
-    end
-    value:addEventListener("touch", touchListener)
-    lists:insert(value)
-  end
-  local overRange = o.height < lists.height
-
-  if o.masked and overRange then
-    local mask = graphics.newMask(self.imagesPath .. "/mask_square.png")
-    group:setMask( mask )
-    group.maskX = o.x + o.width / 2
-    group.maskY = o.y + o.height / 2
-    -- 本来は256だが、マスクの制限で内部に4px黒が入るので、広めにマスク
-    group.maskScaleX = o.width / 225
-    group.maskScaleY = o.height / 225
-  end
-
-  if o.scrollable and overRange  then
-    local yStart = lists.y
-    local yLast = lists.y
-    local endedTimer
-    -- 普通にfocusを使うとelementsにイベントが飛ばなくなるため自力focus
-    local focus = false
-
-    local function endedCallback(newY)
-      focus = false
-      local yBottom = o.height - lists.height
-      if yBottom > newY  then
-        transition.to(lists, {y = o.height - lists.height, time = 300, transition=easing.inQuad})
-        yStart, yLast = yBottom, yBottom
-      elseif newY > 0 then
-        transition.to(lists, {y = 0, time = 300, transition=easing.inQuad})
-        yStart, yLast = 0, 0
-      else
-        yStart = yLast
-      end
-    end
-
-    touchBlock:addEventListener("touch", function(e)
-      local yDiff = e.y - e.yStart
-      local newY = yStart + yDiff
-
-      if e.phase == "began" then
-        focus = true
-      end
-
-      if not focus then
-        return
-      end
-
-      if e.phase == "moved" then
-          lists.y = newY
-          yLast = newY
-          if endedTimer then
-            timer.cancel(endedTimer)
-          end
-          endedTimer = timer.performWithDelay(100, function()
-            endedCallback(newY)
-          end)
-      end
-
-      if e.phase == "ended" then
-        if endedTimer then
-          timer.cancel(endedTimer)
-        end
-        endedCallback(newY)
-      end
-    end)
-  end
-
-  self:newCommon(group, options)
-
-  function group:addTapEventListener(listener)
-    o.onTap = listener
-  end
-  
-  function group:addLongTapEventListener(listener)
-    o.onLongTap = listener
-  end
-
-  function group:elements()
-    return o.elements
-  end
-
-  return group
 end
 
 function M:setVisible(isVisible, targets)
@@ -500,9 +454,176 @@ end
 
 -- 一括設定
 function M:setPropertyMulti(targets, propertyName, value)
-  for i, v in ipairs(targets) do
-    v[propertyName] = value
+  if _u.isTable(propertyName) then
+    local properties = propertyName
+    for k, v in pairs(properties) do
+      self:setPropertyMulti(targets, k, v)
+    end
+  else
+    for _, v in ipairs(targets) do
+      v[propertyName] = value
+    end
   end
 end
+
+function M:newRotateListener(options)
+  local defaults = {
+    targets = nil,
+    speed = 1, -- 小数点以下対応
+    directionSign = 1, -- -1 to left rotate
+  }
+  local o = _u.setDefault(options, defaults) 
+
+  return function()
+    local rotation = o.targets[1].rotation + o.speed * o.directionSign
+    if math.abs(rotation) >= 360 then
+      rotation = 0
+    end
+    self:setPropertyMulti(o.targets, "rotation", rotation)
+  end
+end
+
+function M:remove(target)
+  if not target then
+    return
+  end
+  if #target > 0 then
+    local targets = target
+    for _, v in ipairs(targets) do
+      self:remove(v)
+    end
+  else
+    display.remove(target)
+  end
+end
+
+function M:newSinWaveListener(options)
+  local o = _u.setDefault(options, {
+    target = nil,
+    width = 0,
+    height = 0,
+    speed = 1,
+  })
+  local count = 0
+  local originX = o.target.x
+  local originY = o.target.y
+  return function()
+    if count >= 360 then
+      count = count - 360
+    end
+    count = count + o.speed
+    o.target.x = originX + math.sin(math.rad(count)) * o.width
+    o.target.y = originY + math.sin(math.rad(count)) * o.height
+  end
+end
+
+function M:newSinBlinkListener(options)
+  local o = _u.setDefault(options, {
+    target = nil,
+    speed = 1,
+    maxAlpha = 1,
+  })
+  -- 最初はついていて欲しい
+  local count = 90
+  return function()
+    if count >= 360 then
+      count = count - 360
+    end
+    count = count + o.speed
+    o.target.alpha = o.maxAlpha * math.abs(math.sin(math.rad(count)))
+  end
+end
+
+function M:createImageSheet(options)
+  local o = _u.setDefault(options, {
+    path = nil,
+    width = nil,
+    height = nil,
+    count = nil,
+  })
+  _u.propertyRequired(o, "path")
+  _u.propertyRequired(o, "width")
+  _u.propertyRequired(o, "height")
+  _u.propertyRequired(o, "count")
+
+  return graphics.newImageSheet(o.path, {
+      width = o.width, 
+      height = o.height, 
+      numFrames = o.count, 
+    }
+  )
+end
+
+function M:newSprite(options)
+  local o = _u.setDefault(options, {
+    width = nil,
+    height = nil,
+    path = nil,
+    start = 1,
+    count = nil,
+    time = 1000,
+    loopCount = 0,
+    loopDirection = 'forward',
+    x = CX,
+    y = CY,
+    onComplete = nil,
+    removeOnComplete = true,
+    startImmediately = true,
+  })
+
+  _u.propertyRequired(o, "path")
+
+  local imageSheet = self:createImageSheet(o)
+  local sprite = display.newSprite(imageSheet, o)
+  sprite.x, sprite.y = o.x, o.y
+
+  self:newCommon(sprite, o)
+
+  function sprite:setOnComplete(onComplete)
+    o.onComplete = onComplete
+  end
+
+  sprite:addEventListener("sprite", function(e)
+    if e.phase == 'ended' then
+      if o.removeOnComplete then
+        display.remove(sprite)
+      end
+      if o.onComplete then
+        o.onComplete()
+      end
+    end
+  end)
+  if o.startImmediately then
+    sprite:play()
+  end
+  return sprite
+end
+
+function M:newBlinkListener(options)
+  local defaults = {
+    targets = nil,
+    interval = 6,
+  }
+  local o = _u.setDefault(options, defaults) 
+
+  local function toggle()
+    if o.target.alpha > 0 then
+      o.target:hide()
+    else
+      o.target:show()
+    end
+  end
+  -- 最初の一回は変わって欲しい
+  local updateFrameCounter = o.interval
+  return function()
+    if updateFrameCounter >= o.interval then
+      updateFrameCounter = 0
+      toggle()
+    else
+      updateFrameCounter = updateFrameCounter + 1
+    end
+  end
+end
+
 
 return M

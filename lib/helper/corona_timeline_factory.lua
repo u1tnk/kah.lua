@@ -2,14 +2,20 @@ local parent = require '..object'
 local _u = require '..utils'
 local M = parent:new()
 
+-- イベント系
 -- to
 -- from
 -- delay
 -- parallel
+-- eachParallel
 -- call
--- loop
--- times
+-- subTl
+-- 起動系
 -- run
+-- times
+-- loop (非推奨、できればtransition系ではなくenterFrameで実行した方が良い)
+-- pause
+-- resume
 -- 通信エラーなどで処理中断したいときは
 -- nextを呼ばずにonErrorを呼ぶ。
 -- 残りのイベントはnewTlで生成したインスタンスがGCされるなら問題無いはず
@@ -117,6 +123,9 @@ function M:newTl(options)
   end
 
   tl.subTl = function(t)
+    if not t then
+      return tl
+    end
     return tl.parallel({t})
   end
 
@@ -258,6 +267,69 @@ function M:newTl(options)
   tl.times = function(count)
     times = count
     tl.run()
+    return tl
+  end
+
+  tl.pause = function()
+    table.insert(queue, function() end)
+    return tl
+  end
+
+  tl.resume = function(onComplete)
+    if onComplete then
+      if o.onComplete then
+        print("WARNING: already set onComplete!")
+      end
+      o.onComplete = onComplete
+    end
+    next()
+  end
+
+  tl.fadeOut = function(target, options)
+    local o = _u.setDefault(options, {
+      time = 500,
+      removeOnComplete = true,
+      alpha = 0,
+    })
+    tl
+      .to(target, o)
+      .call(function()
+        if o.removeOnComplete then
+          display.remove(target)
+        end
+      end)
+    return tl
+  end
+
+  tl.fadeIn = function(target, options)
+    local o = _u.setDefault(options, {
+      time = 500,
+      alpha = 1,
+    })
+    tl
+      .to(target, o)
+    return tl
+  end
+
+  tl.crossFade = function(from, to, options)
+    local o = _u.setDefault(options, {
+      time = 500,
+      removeOnComplete = true,
+      outAlpha = 0,
+      inAlpha = 1,
+    })
+    tl
+      .parallel{
+        self:newTl().fadeOut(from, {
+          time = o.time,
+          removeOnComplete = o.removeOnComplete,
+          alpha = o.outAlpha,
+        }),
+        self:newTl().fadeIn(to, {
+          time = o.time,
+          alpha = o.inAlpha,
+        }),
+      }
     return tl
   end
 
