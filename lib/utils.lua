@@ -78,7 +78,7 @@ function M.toString(data)
 end
 
 function M.dump(data, name)
-    print(M.toString({name or "*", data}))
+    print(M.toString({name or tostring(data), data}))
 end
 M.p = M.dump
 
